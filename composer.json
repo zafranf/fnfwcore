@@ -1,7 +1,6 @@
 {
     "name": "zafranf/fnfwcore",
     "description": "(fn)FW Core",
-    "type": "project",
     "require": {
         "php": "5.6.*",
         "phpmailer/phpmailer": "^6.0"
@@ -12,5 +11,7 @@
             "name": "zafranf",
             "email": "zafranfadilah@gmail.com"
         }
-    ]
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
