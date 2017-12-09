@@ -1,51 +1,52 @@
 <?php
-$routes = require_once APP_PATH.'routes.php';
+$routes = require_once APP_PATH . 'routes.php';
 
 /* set default controller */
-$config = config();
-$file = $config['default_controller'];
+$file = config('default_controller');
 
 /* handle  request uri */
-if ($_SERVER['REQUEST_URI']!='/') {
+if ($_SERVER['REQUEST_URI'] != '/') {
     /* separate from params */
     $uri = explode('?', $_SERVER['REQUEST_URI']);
-    $file = trim($uri[0], '/'); 
+    $file = trim($uri[0], '/');
 }
 
 /* check existing file */
-$file = checkRouteFile($file, $routes, $config); 
+$file = checkRouteFile($file, $routes);
 
 /**
  * [checkRouteFile description]
  * @param  [type] $file [description]
  * @return [type]       [description]
  */
-function checkRouteFile($file, $routes, $config) {
+function checkRouteFile($file, $routes)
+{
+    $config = config();
     $target = $file;
     $_SESSION['params'] = [];
 
     // checking file from full uri (w/o params)
-    if (!file_exists($config['app_controllers'].$target.'.php')) {
+    if (!file_exists($config['app']['controller_folder'] . $target . '.php')) {
         // explode uri by /
         $files = explode("/", $file);
 
         // count uri
-        for ($i=(count($files)-1); $i>=0;$i--) {
+        for ($i = (count($files) - 1); $i >= 0; $i--) {
             // reimplode the uri
             $target = implode("/", $files);
 
             // check file exist with new target
-            if (file_exists($config['app_controllers'].$target.'.php')) {
+            if (file_exists($config['app']['controller_folder'] . $target . '.php')) {
                 setRouteSession($target);
                 return $target;
-            } else if (file_exists($config['app_controllers'].$target.'/index.php')) {
-                $target = $target.'/index';
+            } else if (file_exists($config['app']['controller_folder'] . $target . '/index.php')) {
+                $target = $target . '/index';
                 setRouteSession($target);
                 return $target;
             } else {
                 /* check routes */
                 $check = checkRoutes($target, $routes);
-                if ($check!=404) {
+                if ($check != 404) {
                     setRouteSession($target);
                     return $check;
                 }
@@ -60,7 +61,7 @@ function checkRouteFile($file, $routes, $config) {
     }
 
     /* for dynamic root */
-    if (($target==404 || (isset($check) && $check==404)) && in_array('*', array_keys($routes))) {
+    if (($target == 404 || (isset($check) && $check == 404)) && in_array('*', array_keys($routes))) {
         $file = $routes['*'];
     }
 
@@ -72,9 +73,10 @@ function checkRouteFile($file, $routes, $config) {
  * @param  [type] $file [description]
  * @return [type]       [description]
  */
-function checkRoutes($file, $routes) {
+function checkRoutes($file, $routes)
+{
     $target = 404;
-    
+
     /* check route in array routes */
     if (in_array($file, array_keys($routes))) {
         $target = $routes[$file];
@@ -87,14 +89,15 @@ function checkRoutes($file, $routes) {
  * [setRouteSession description]
  * @param [type] $route [description]
  */
-function setRouteSession($route) {
+function setRouteSession($route)
+{
     /* reverse session params */
     $_SESSION['params'] = array_reverse($_SESSION['params']);
-    
+
     /* take out routes in params */
     $xroute = explode("/", $route);
     foreach ($xroute as $key => $val) {
-        if (isset($_SESSION['params'][$key]) && $_SESSION['params'][$key]==$val) {
+        if (isset($_SESSION['params'][$key]) && $_SESSION['params'][$key] == $val) {
             unset($_SESSION['params'][$key]);
         }
     }
@@ -106,23 +109,16 @@ function setRouteSession($route) {
  * @return [type]       [description]
  */
 if (!function_exists('controller')) {
-    function controller($file) {
+    function controller($file)
+    {
         $config = config();
 
-        if ($config['cache']['active']) {
-            ob_start("cache");
-        }
-
-        $params     = getParameters();
+        $params = getParameters();
         $controller = $file;
-        $route      = getRoute();
-        $target     = $config['app_controllers'].$file.'.php';
+        $route = getRoute();
+        $target = $config['app']['controller_folder'] . $file . '.php';
 
-        /* Rearrange Input Files */
-        if (isset($_FILES)) {
-            $_FILES = reArrangeFiles();
-        }
-
+        /* check file */
         if (file_exists($target)) {
             return require $target;
         }
@@ -138,8 +134,14 @@ if (!function_exists('controller')) {
  * @return [type]       [description]
  */
 if (!function_exists('view')) {
-    function view() {
-        $code = 200; $file = ''; $data = [];
+    function view()
+    {
+        $config = config();
+        $code = 200;
+        $file = '';
+        $data = [];
+
+        /* get arguments */
         foreach (func_get_args() as $arg) {
             if (is_int($arg)) {
                 $code = $arg;
@@ -150,19 +152,19 @@ if (!function_exists('view')) {
             }
         }
 
+        /* set http header */
         http_response_code($code);
 
-        $config = config();
-        if ($config['cache']['active']) {
-            ob_start("cache");
-        }
-
+        /* set params */
         $params = getParameters();
-        $target = $config['app_views'].$file.'.php';
 
-        if (file_exists($target)) {
+        /* get file */
+        $file = $config['app']['view_folder'] . $file . '.php';
+
+        /* check file */
+        if (file_exists($file)) {
             extract($data);
-            return require $target;
+            return require $file;
         }
 
         return view_error(404);
@@ -176,8 +178,13 @@ if (!function_exists('view')) {
  * @return [type]        [description]
  */
 if (!function_exists('view_error')) {
-    function view_error() {
-        $code = 0; $file = '';
+    function view_error()
+    {
+        $config = config();
+        $code = 0;
+        $file = '';
+
+        /* get arguments */
         foreach (func_get_args() as $arg) {
             if (is_int($arg)) {
                 $code = $arg;
@@ -186,12 +193,13 @@ if (!function_exists('view_error')) {
             }
         }
 
+        /* set http header */
         http_response_code($code);
 
-        $config = config();
-        $file = !empty($file)?$file:'errors/'.$code;
+        /* get file */
+        $file = !empty($file) ? $file : 'errors/' . $code;
 
-        return require $config['app_views'].$file.'.php';
+        return require $config['app']['view_folder'] . $file . '.php';
     }
 }
 
