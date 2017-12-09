@@ -522,6 +522,9 @@ if (!function_exists('sendMail')) {
         $mail->Username = $cfg['username'];
         $mail->Password = $cfg['password'];
 
+        /* Set Message ID */
+        $mail->MessageID = '<' . md5(date('YmdHis') . uniqid()) . '@' . _server('HTTP_HOST') . '>';
+
         /* Set Sender */
         if (isset($par['from'])) {
             if (is_array($par['from'])) {
@@ -554,8 +557,12 @@ if (!function_exists('sendMail')) {
                 /* Check if recipient more than 1 */
                 if (isset($par['to'][0])) {
                     foreach ($par['to'] as $key => $val) {
-                        $to_name = isset($val['name']) ? $val['name'] : '';
-                        $mail->addAddress($val['email'], $to_name);
+                        if (isset($val['email'])) {
+                            $to_name = isset($val['name']) ? $val['name'] : '';
+                            $mail->addAddress($val['email'], $to_name);
+                        } else {
+                            $mail->addAddress($val);
+                        }
                     }
                 }
                 /* Check if recipient only 1 and using name */
@@ -575,8 +582,12 @@ if (!function_exists('sendMail')) {
                 /* Check if 'Cc' recipient more than 1 */
                 if (isset($par['cc'][0])) {
                     foreach ($par['cc'] as $key => $val) {
-                        $cc_name = isset($val['name']) ? $val['name'] : '';
-                        $mail->addCC($val['email'], $cc_name);
+                        if (isset($val['email'])) {
+                            $cc_name = isset($val['name']) ? $val['name'] : '';
+                            $mail->addCC($val['email'], $cc_name);
+                        } else {
+                            $mail->addCC($val);
+                        }
                     }
                 }
                 /* Check if 'Cc' recipient only 1 and using name */
@@ -596,8 +607,12 @@ if (!function_exists('sendMail')) {
                 /* Check if 'Bcc' recipient more than 1 */
                 if (isset($par['bcc'][0])) {
                     foreach ($par['bcc'] as $key => $val) {
-                        $bcc_name = isset($val['name']) ? $val['name'] : '';
-                        $mail->addBCC($val['email'], $bcc_name);
+                        if (isset($val['email'])) {
+                            $bcc_name = isset($val['name']) ? $val['name'] : '';
+                            $mail->addBCC($val['email'], $bcc_name);
+                        } else {
+                            $mail->addBCC($val);
+                        }
                     }
                 }
                 /* Check if 'Bcc' recipient only 1 and using name */
@@ -612,23 +627,27 @@ if (!function_exists('sendMail')) {
         }
 
         /* Set Attachments */
-        if (isset($par['attachment'])) {
-            if (is_array($par['attachment'])) {
+        if (isset($par['attachments'])) {
+            if (is_array($par['attachments'])) {
                 /* Check if attachment more than 1 */
-                if (isset($par['attachment'][0])) {
-                    foreach ($par['attachment'] as $key => $val) {
-                        $attachment_name = isset($val['name']) ? $val['name'] : '';
-                        $mail->addAttachment($val['file'], $attachment_name);
+                if (isset($par['attachments'][0])) {
+                    foreach ($par['attachments'] as $key => $val) {
+                        if (isset($val['file'])) {
+                            $attachment_name = isset($val['name']) ? $val['name'] : '';
+                            $mail->addAttachment($val['file'], $attachment_name);
+                        } else {
+                            $mail->addAttachment($val);
+                        }
                     }
                 }
                 /* Check if attachment only 1 and using name */
-                else if (isset($par['attachment']['file'])) {
-                    $attachment_name = isset($par['attachment']['name']) ? $par['attachment']['name'] : '';
-                    $mail->addAttachment($par['attachment']['file'], $attachment_name);
+                else if (isset($par['attachments']['file'])) {
+                    $attachment_name = isset($par['attachments']['name']) ? $par['attachments']['name'] : '';
+                    $mail->addAttachment($par['attachments']['file'], $attachment_name);
                 }
             } else {
                 /* Check if attachment only 1 and just filename */
-                $mail->addAttachment($par['attachment']);
+                $mail->addAttachment($par['attachments']);
             }
         }
 
@@ -650,7 +669,7 @@ if (!function_exists('sendMail')) {
             throw new Exception('Message not sent. ' . $mail->ErrorInfo, 1);
         }
 
-        return true;
+        return $mail->getLastMessageID();
     }
 }
 
@@ -679,7 +698,7 @@ if (!function_exists('uploadFile')) {
 
         /* Proses upload file */
         $move = move_uploaded_file($file, $folder . $saveas);
-        if ($imageoptim) {
+        if ($move && $imageoptim) {
             $move = imageOptimation($folder . $saveas, $folder, $saveas);
         }
 
