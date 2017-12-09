@@ -1,5 +1,4 @@
 <?php
-use PHPMailer\PHPMailer\PHPMailer;
 /**
  * [exception_handler description]
  * @param  [type] $severity [description]
@@ -504,7 +503,7 @@ if (!function_exists('sendMail')) {
         $cfg = config('email');
 
         /* Start PHPMailer */
-        $mail = new PHPMailer;
+        $mail = new \PHPMailer\PHPMailer\PHPMailer;
 
         /* SMTP Config */
         if (isset($cfg['is_smtp'])) {
@@ -662,11 +661,11 @@ if (!function_exists('sendMail')) {
         }
 
         if ($mail->isError()) {
-            throw new Exception('Message could not be sent. ' . $mail->ErrorInfo, 1);
+            throw new RuntimeException('Message could not be sent. ' . $mail->ErrorInfo, 1);
         }
 
         if (!$mail->send()) {
-            throw new Exception('Message not sent. ' . $mail->ErrorInfo, 1);
+            throw new RuntimeException('Message not sent. ' . $mail->ErrorInfo, 1);
         }
 
         return $mail->getLastMessageID();
