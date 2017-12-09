@@ -7,45 +7,24 @@
  * @param  [type] $line     [description]
  * @return [type]           [description]
  */
-// set error handler
-/*set_error_handler("exception_handler");
-function exception_handler($severity, $message, $file, $line) {
-global $config;
+/* set error handler */
+exception_handler();
+function exception_handler()
+{
+    $whoops = new \Whoops\Run;
+    $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+    $whoops->pushHandler(function ($e) {
+        /* save log */
+        _log($e->__toString() . ' throw in ' . $e->getFile() . ' on line ' . $e->getLine());
 
-try {
-throw new ErrorException($message, 0, $severity, $file, $line);
+        /* hide error */
+        if (!config('app')['debug']) {
+            $string = '<p><h2>Something wrong..</h2><hr></p>';
+            debug($string);
+        }
+    });
+    $whoops->register();
 }
-catch (ErrorException $e) {
-$string = '<p><h2>Something wrong..</h2><hr></p>';
-if ($config['app_debug']===true) {
-$string .= '<p><b>Error</b>: '.$e->__toString().'<br> throw in <b>'.$e->getFile().'</b> on line <b>'.$e->getLine().'</b></p>';
-}
-
-_log($e->__toString().' throw in '.$e->getFile().' on line '.$e->getLine());
-debug($string);
-}
-}*/
-
-/**
- * [shutdown_handler description]
- * @return [type] [description]
- */
-// set shutdown handler
-/*register_shutdown_function("shutdown_handler");
-function shutdown_handler() {
-global $config;
-$error = error_get_last();
-
-if (!empty($error)) {
-$string = '<p><h2>Something wrong..</h2><hr></p>';
-if ($config['app_debug']===true) {
-$string .= '<p><b>Error</b>: '.$error['message'].' in <b>'.$error['file'].'</b> on line <b>'.$error['line'].'</b></p>';
-}
-
-_log($error['message'].' in '.$error['file'].' on line '.$error['line']);
-debug($string);
-}
-}*/
 
 /**
  * [_log description]
@@ -661,11 +640,11 @@ if (!function_exists('sendMail')) {
         }
 
         if ($mail->isError()) {
-            throw new RuntimeException('Message could not be sent. ' . $mail->ErrorInfo, 1);
+            throw new Exception('Message could not be sent. ' . $mail->ErrorInfo);
         }
 
         if (!$mail->send()) {
-            throw new RuntimeException('Message not sent. ' . $mail->ErrorInfo, 1);
+            throw new Exception('Message not sent. ' . $mail->ErrorInfo);
         }
 
         return $mail->getLastMessageID();
