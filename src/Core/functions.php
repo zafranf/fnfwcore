@@ -1,4 +1,5 @@
 <?php
+use PHPMailer\PHPMailer\PHPMailer;
 /**
  * [exception_handler description]
  * @param  [type] $severity [description]
@@ -10,20 +11,20 @@
 // set error handler
 /*set_error_handler("exception_handler");
 function exception_handler($severity, $message, $file, $line) {
-    global $config;
+global $config;
 
-    try {
-        throw new ErrorException($message, 0, $severity, $file, $line);
-    }
-    catch (ErrorException $e) {
-        $string = '<p><h2>Something wrong..</h2><hr></p>';
-        if ($config['app_debug']===true) {
-            $string .= '<p><b>Error</b>: '.$e->__toString().'<br> throw in <b>'.$e->getFile().'</b> on line <b>'.$e->getLine().'</b></p>';
-        }
+try {
+throw new ErrorException($message, 0, $severity, $file, $line);
+}
+catch (ErrorException $e) {
+$string = '<p><h2>Something wrong..</h2><hr></p>';
+if ($config['app_debug']===true) {
+$string .= '<p><b>Error</b>: '.$e->__toString().'<br> throw in <b>'.$e->getFile().'</b> on line <b>'.$e->getLine().'</b></p>';
+}
 
-        _log($e->__toString().' throw in '.$e->getFile().' on line '.$e->getLine());
-        debug($string);
-    }
+_log($e->__toString().' throw in '.$e->getFile().' on line '.$e->getLine());
+debug($string);
+}
 }*/
 
 /**
@@ -33,18 +34,18 @@ function exception_handler($severity, $message, $file, $line) {
 // set shutdown handler
 /*register_shutdown_function("shutdown_handler");
 function shutdown_handler() {
-    global $config;
-    $error = error_get_last();
+global $config;
+$error = error_get_last();
 
-    if (!empty($error)) {
-        $string = '<p><h2>Something wrong..</h2><hr></p>';
-        if ($config['app_debug']===true) {
-            $string .= '<p><b>Error</b>: '.$error['message'].' in <b>'.$error['file'].'</b> on line <b>'.$error['line'].'</b></p>';
-        }
+if (!empty($error)) {
+$string = '<p><h2>Something wrong..</h2><hr></p>';
+if ($config['app_debug']===true) {
+$string .= '<p><b>Error</b>: '.$error['message'].' in <b>'.$error['file'].'</b> on line <b>'.$error['line'].'</b></p>';
+}
 
-        _log($error['message'].' in '.$error['file'].' on line '.$error['line']);
-        debug($string);
-    }
+_log($error['message'].' in '.$error['file'].' on line '.$error['line']);
+debug($string);
+}
 }*/
 
 /**
@@ -53,9 +54,10 @@ function shutdown_handler() {
  * @return [type]       [description]
  */
 if (!function_exists('_log')) {
-    function _log($data) {
-        $target = STORAGE_PATH."logs/fnfw-".date("Y-m-d").".log";
-        $log = "[".date("Y-m-d H:i:s")."] ".$data."\r\n";
+    function _log($data)
+    {
+        $target = STORAGE_PATH . "logs/fnfw-" . date("Y-m-d") . ".log";
+        $log = "[" . date("Y-m-d H:i:s") . "] " . $data . "\r\n";
 
         file_put_contents($target, $log, FILE_APPEND);
     }
@@ -67,8 +69,9 @@ if (!function_exists('_log')) {
  * @return [type]      [description]
  */
 if (!function_exists('_goto')) {
-    function _goto($url="/") {
-        header("location: ".$url);
+    function _goto($url = "/")
+    {
+        header("location: " . $url);
         die();
     }
 }
@@ -80,13 +83,15 @@ if (!function_exists('_goto')) {
  * @return [type]        [description]
  */
 if (!function_exists('_bool')) {
-    function _bool($bool=false) {
+    function _bool($bool = false)
+    {
         $bool = strtolower(trim($bool));
-        if ($bool=='true' || $bool=='t' || $bool=='yes' || $bool=='y' || $bool=='1') {
+        if ($bool == 'true' || $bool == 't' || $bool == 'yes' || $bool == 'y' || $bool == '1') {
             return true;
         } else {
             return false;
-        };
+        }
+        ;
     }
 }
 
@@ -97,7 +102,8 @@ if (!function_exists('_bool')) {
  * @return [type]       [description]
  */
 if (!function_exists('_server')) {
-    function _server($key=null) { 
+    function _server($key = null)
+    {
         /* Check $key */
         if (is_null($key)) {
             return $_SERVER;
@@ -120,7 +126,8 @@ if (!function_exists('_server')) {
  * @return [type]       [description]
  */
 if (!function_exists('_session')) {
-    function _session($key=null) { 
+    function _session($key = null)
+    {
         /* Check $key */
         if (is_null($key)) {
             return $_SESSION;
@@ -142,7 +149,8 @@ if (!function_exists('_session')) {
  * @return [type]       [description]
  */
 if (!function_exists('_input')) {
-    function _input($key=null, $int=false) { 
+    function _input($key = null, $int = false)
+    {
         /* Check $key */
         if (is_null($key)) {
             return $_REQUEST;
@@ -171,7 +179,8 @@ if (!function_exists('_input')) {
  * @return [type]       [description]
  */
 if (!function_exists('_get')) {
-    function _get($key=null, $int=false) { 
+    function _get($key = null, $int = false)
+    {
         /* Check $key */
         if (is_null($key)) {
             return $_GET;
@@ -200,7 +209,8 @@ if (!function_exists('_get')) {
  * @return [type]       [description]
  */
 if (!function_exists('_post')) {
-    function _post($key=null, $int=false) { 
+    function _post($key = null, $int = false)
+    {
         /* Check $key */
         if (is_null($key)) {
             return $_POST;
@@ -228,7 +238,8 @@ if (!function_exists('_post')) {
  * @return [type]       [description]
  */
 if (!function_exists('_file')) {
-    function _file($name) {
+    function _file($name)
+    {
         $fl = null;
 
         /* Check requested file */
@@ -237,19 +248,19 @@ if (!function_exists('_file')) {
         }
 
         /* Mapping file */
-        if (isset($file['name']) && $file['name']!="" && $file['error']==0) {
+        if (isset($file['name']) && $file['name'] != "" && $file['error'] == 0) {
             $xname = explode(".", $file['name']);
             $fl = [];
             $fl['filename'] = $file['name'];
-            $fl['name'] = str_replace('.'.end($xname), "", $file['name']);
-            $fl['ext'] = '.'.end($xname);
+            $fl['name'] = str_replace('.' . end($xname), "", $file['name']);
+            $fl['ext'] = '.' . end($xname);
             $fl['tmp'] = $file['tmp_name'];
-            $fl['size'] = round($file['size']/1024, 2); //in KB
+            $fl['size'] = round($file['size'] / 1024, 2); //in KB
             $fl['mime'] = mime_content_type($fl['tmp']);
 
             /* Get image dimension */
             $mime = explode("/", $fl['mime'])[0];
-            if ($mime=="image" || in_array($fl['ext'], ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'])) {
+            if ($mime == "image" || in_array($fl['ext'], ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'])) {
                 $info = getimagesize($fl['tmp']);
                 $fl['width'] = $info[0];
                 $fl['height'] = $info[1];
@@ -266,8 +277,24 @@ if (!function_exists('_file')) {
  * @return [type]       [description]
  */
 if (!function_exists('_files')) {
-    function _files($file) {
-        return _file($file);
+    function _files($key = null)
+    {
+        /* rearrange files */
+        $_FILES = reArrangeFiles();
+
+        /* Check $key */
+        if (is_null($key)) {
+            return $_FILES;
+        }
+
+        /* Check requested string */
+        if (isset($_FILES[$key])) {
+            $val = $_FILES[$key];
+
+            return _file($file);
+        }
+
+        return null;
     }
 }
 
@@ -278,7 +305,8 @@ if (!function_exists('_files')) {
  * @return [type]        [description]
  */
 if (!function_exists('reArrangeFiles')) {
-    function reArrangeFiles() {
+    function reArrangeFiles()
+    {
         $walker = function ($files, $fileInfokey, callable $walker) {
             $ret = [];
             foreach ($files as $k => $v) {
@@ -293,15 +321,15 @@ if (!function_exists('reArrangeFiles')) {
 
         $files = [];
         foreach ($_FILES as $name => $values) {
-            // init for array_merge
+            /* init for array_merge */
             if (!isset($files[$name])) {
                 $files[$name] = [];
             }
             if (!is_array($values['error'])) {
-                // normal syntax
+                /* normal syntax */
                 $files[$name] = $values;
             } else {
-                // html array feature
+                /* html array feature */
                 foreach ($values as $fileInfoKey => $subArray) {
                     $files[$name] = array_replace_recursive($files[$name], $walker($subArray, $fileInfoKey, $walker));
                 }
@@ -319,7 +347,8 @@ if (!function_exists('reArrangeFiles')) {
  * @return [type]        [description]
  */
 if (!function_exists('debug')) {
-    function debug() {
+    function debug()
+    {
         array_map(function ($data) {
             echo "<pre>";
             print_r($data);
@@ -335,8 +364,9 @@ if (!function_exists('debug')) {
  * @return boolean [description]
  */
 if (!function_exists('isLogin')) {
-    function isLogin() {
-        if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
+    function isLogin()
+    {
+        if (_session('user') !== null && !empty(_session('user'))) {
             return true;
         }
 
@@ -349,11 +379,12 @@ if (!function_exists('isLogin')) {
  * @return boolean [description]
  */
 if (!function_exists('auth')) {
-    function auth($key='') {
+    function auth($key = '')
+    {
         $auth = [];
-        if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
-            $auth = $_SESSION['user'];
-            if ($key!='') {
+        if (isLogin()) {
+            $auth = _session('user');
+            if ($key != '') {
                 $auth = $auth[$key];
             }
         }
@@ -370,9 +401,10 @@ if (!function_exists('auth')) {
  * @return [type] [description]
  */
 if (!function_exists('setFlashMessage')) {
-    function setFlashMessage($key, $val=null, $type='failed') {
+    function setFlashMessage($key, $val = null, $type = 'failed')
+    {
         /* Override val & type */
-        if ($val=="success" || $val=="failed") {
+        if ($val == "success" || $val == "failed") {
             $type = $val;
             $val = null;
         }
@@ -396,7 +428,8 @@ if (!function_exists('setFlashMessage')) {
  * @return [type] [description]
  */
 if (!function_exists('getFlashMessages')) {
-    function getFlashMessages() {
+    function getFlashMessages()
+    {
         $fm = [];
         if (checkFlashMessages()) {
             $fm = $_SESSION['flash_messages'];
@@ -412,7 +445,8 @@ if (!function_exists('getFlashMessages')) {
  * @return [type] [description]
  */
 if (!function_exists('checkFlashMessages')) {
-    function checkFlashMessages() {
+    function checkFlashMessages()
+    {
         if (!empty($_SESSION['flash_messages'])) {
             return true;
         }
@@ -426,11 +460,12 @@ if (!function_exists('checkFlashMessages')) {
  * @return [type] [description]
  */
 if (!function_exists('getRoute')) {
-    function getRoute() {
+    function getRoute()
+    {
         $exclude = ["index", "add", "edit", "delete", "detail", "save", "update"];
         $uri = explode("?", $_SERVER['REQUEST_URI'])[0];
         foreach ($exclude as $exc) {
-            $uri = preg_replace("/\/".$exc."(\S+)?/", "", $uri);
+            $uri = preg_replace("/\/" . $exc . "(\S+)?/", "", $uri);
         }
 
         return $uri;
@@ -442,7 +477,8 @@ if (!function_exists('getRoute')) {
  * @return [type] [description]
  */
 if (!function_exists('getParameters')) {
-    function getParameters() {
+    function getParameters()
+    {
         $params = [];
 
         /* Check Session Params */
@@ -463,16 +499,14 @@ if (!function_exists('getParameters')) {
  * @return [type]      [description]
  */
 if (!function_exists('sendMail')) {
-    function sendMail($par=[]) {
-        $config = config();
-        $cfg = $config['email'];
+    function sendMail($par = [])
+    {
+        $cfg = config('email');
 
-        require APP_PATH.'lib/PHPMailer/PHPMailerAutoload.php';
-
-        // Start PHPMailer
+        /* Start PHPMailer */
         $mail = new PHPMailer;
 
-        // SMTP Config
+        /* SMTP Config */
         if (isset($cfg['is_smtp'])) {
             $mail->isSMTP();
             $mail->SMTPAuth = $cfg['smtp']['auth'];
@@ -482,17 +516,17 @@ if (!function_exists('sendMail')) {
             $mail->isMail();
         }
 
-        // Host & User Auth
+        /* Host & User Auth */
         $mail->Host = $cfg['host'];
         $mail->Port = $cfg['port'];
         $mail->Username = $cfg['username'];
         $mail->Password = $cfg['password'];
 
-        // Set Sender
+        /* Set Sender */
         if (isset($par['from'])) {
             if (is_array($par['from'])) {
                 if (isset($par['from']['email'])) {
-                    $from_name = isset($par['from']['name'])?$par['from']['name']:'';
+                    $from_name = isset($par['from']['name']) ? $par['from']['name'] : '';
                     $mail->setFrom($par['from']['email'], $from_name);
                 }
             } else {
@@ -502,11 +536,11 @@ if (!function_exists('sendMail')) {
             $mail->setFrom($cfg['username']);
         }
 
-        // Set Sender 'Reply To'
+        /* Set Sender 'Reply To' */
         if (isset($par['reply_to'])) {
             if (is_array($par['reply_to'])) {
                 if (isset($par['reply_to']['email'])) {
-                    $replyto_name = isset($par['reply_to']['name'])?$par['reply_to']['name']:'';
+                    $replyto_name = isset($par['reply_to']['name']) ? $par['reply_to']['name'] : '';
                     $mail->addReplyTo($par['reply_to']['email'], $replyto_name);
                 }
             } else {
@@ -514,107 +548,107 @@ if (!function_exists('sendMail')) {
             }
         }
 
-        // Set 'To' Recipient
+        /* Set 'To' Recipient */
         if (isset($par['to'])) {
             if (is_array($par['to'])) {
-                // Check if recipient more than 1
+                /* Check if recipient more than 1 */
                 if (isset($par['to'][0])) {
                     foreach ($par['to'] as $key => $val) {
-                        $to_name = isset($val['name'])?$val['name']:'';
+                        $to_name = isset($val['name']) ? $val['name'] : '';
                         $mail->addAddress($val['email'], $to_name);
                     }
-                } 
-                // Check if recipient only 1 and using name
+                }
+                /* Check if recipient only 1 and using name */
                 else if (isset($par['to']['email'])) {
-                    $to_name = isset($par['to']['name'])?$par['to']['name']:'';
+                    $to_name = isset($par['to']['name']) ? $par['to']['name'] : '';
                     $mail->addAddress($par['to']['email'], $to_name);
                 }
             } else {
-                // Check if recipient only 1 and just email
+                /* Check if recipient only 1 and just email */
                 $mail->addAddress($par['to']);
             }
         }
 
-        // Set 'Cc' Recipient
+        /* Set 'Cc' Recipient */
         if (isset($par['cc'])) {
             if (is_array($par['cc'])) {
-                // Check if 'Cc' recipient more than 1
+                /* Check if 'Cc' recipient more than 1 */
                 if (isset($par['cc'][0])) {
                     foreach ($par['cc'] as $key => $val) {
-                        $cc_name = isset($val['name'])?$val['name']:'';
+                        $cc_name = isset($val['name']) ? $val['name'] : '';
                         $mail->addCC($val['email'], $cc_name);
                     }
-                } 
-                // Check if 'Cc' recipient only 1 and using name
+                }
+                /* Check if 'Cc' recipient only 1 and using name */
                 else if (isset($par['cc']['email'])) {
-                    $cc_name = isset($par['cc']['name'])?$par['cc']['name']:'';
+                    $cc_name = isset($par['cc']['name']) ? $par['cc']['name'] : '';
                     $mail->addCC($par['cc']['email'], $cc_name);
                 }
             } else {
-                // Check if 'Cc' recipient only 1 and just email
+                /* Check if 'Cc' recipient only 1 and just email */
                 $mail->addCC($par['cc']);
             }
         }
 
-        // Set 'Bcc' Recipient
+        /* Set 'Bcc' Recipient */
         if (isset($par['bcc'])) {
             if (is_array($par['bcc'])) {
-                // Check if 'Bcc' recipient more than 1
+                /* Check if 'Bcc' recipient more than 1 */
                 if (isset($par['bcc'][0])) {
                     foreach ($par['bcc'] as $key => $val) {
-                        $bcc_name = isset($val['name'])?$val['name']:'';
+                        $bcc_name = isset($val['name']) ? $val['name'] : '';
                         $mail->addBCC($val['email'], $bcc_name);
                     }
-                } 
-                // Check if 'Bcc' recipient only 1 and using name
+                }
+                /* Check if 'Bcc' recipient only 1 and using name */
                 else if (isset($par['bcc']['email'])) {
-                    $bcc_name = isset($par['bcc']['name'])?$par['bcc']['name']:'';
+                    $bcc_name = isset($par['bcc']['name']) ? $par['bcc']['name'] : '';
                     $mail->addBCC($par['bcc']['email'], $bcc_name);
                 }
             } else {
-                // Check if 'Bcc' recipient only 1 and just email
+                /* Check if 'Bcc' recipient only 1 and just email */
                 $mail->addBCC($par['bcc']);
             }
         }
 
-        // Set Attachments
+        /* Set Attachments */
         if (isset($par['attachment'])) {
             if (is_array($par['attachment'])) {
-                // Check if attachment more than 1
+                /* Check if attachment more than 1 */
                 if (isset($par['attachment'][0])) {
                     foreach ($par['attachment'] as $key => $val) {
-                        $attachment_name = isset($val['name'])?$val['name']:'';
+                        $attachment_name = isset($val['name']) ? $val['name'] : '';
                         $mail->addAttachment($val['file'], $attachment_name);
                     }
-                } 
-                // Check if attachment only 1 and using name
+                }
+                /* Check if attachment only 1 and using name */
                 else if (isset($par['attachment']['file'])) {
-                    $attachment_name = isset($par['attachment']['name'])?$par['attachment']['name']:'';
+                    $attachment_name = isset($par['attachment']['name']) ? $par['attachment']['name'] : '';
                     $mail->addAttachment($par['attachment']['file'], $attachment_name);
                 }
             } else {
-                // Check if attachment only 1 and just filename
+                /* Check if attachment only 1 and just filename */
                 $mail->addAttachment($par['attachment']);
             }
         }
 
-        // Always HTML
+        /* Always HTML */
         $mail->isHTML(true);
 
-        // Set Mail Content
+        /* Set Mail Content */
         $mail->Subject = $par['subject'];
-        $mail->Body    = $par['message'];
-        if (isset($par['message_alt']) && $par['message_alt']!="") {
+        $mail->Body = $par['message'];
+        if (isset($par['message_alt']) && $par['message_alt'] != "") {
             $mail->AltBody = $par['message_alt'];
         }
 
         if ($mail->isError()) {
-            throw new Exception('Message could not be sent. '.$mail->ErrorInfo, 1);
+            throw new Exception('Message could not be sent. ' . $mail->ErrorInfo, 1);
         }
 
-        if(!$mail->send()) {
-            throw new Exception('Message not sent. '.$mail->ErrorInfo, 1);
-        } 
+        if (!$mail->send()) {
+            throw new Exception('Message not sent. ' . $mail->ErrorInfo, 1);
+        }
 
         return true;
     }
@@ -629,12 +663,13 @@ if (!function_exists('sendMail')) {
  * @return [type]              [description]
  */
 if (!function_exists('uploadFile')) {
-    function uploadFile($file, $folder='upload', $saveas, $imageoptim=false) {
+    function uploadFile($file, $folder = 'upload', $saveas, $imageoptim = false)
+    {
         $return = false;
 
         /* Set folder location */
-        if ($folder=="" || $folder=="upload") {
-            $folder = PUBLIC_PATH.'upload/';
+        if ($folder == "" || $folder == "upload") {
+            $folder = PUBLIC_PATH . 'upload/';
         }
 
         /* Check directory and create if not exist */
@@ -643,15 +678,15 @@ if (!function_exists('uploadFile')) {
         }
 
         /* Proses upload file */
-        $move = move_uploaded_file($file, $folder.$saveas);
+        $move = move_uploaded_file($file, $folder . $saveas);
         if ($imageoptim) {
-            $move = imageOptimation($folder.$saveas, $folder, $saveas);
+            $move = imageOptimation($folder . $saveas, $folder, $saveas);
         }
 
         if ($move) {
             $return = [
-                'folder'    => $folder,
-                'filename'  => $saveas
+                'folder' => $folder,
+                'filename' => $saveas,
             ];
         }
 
@@ -668,7 +703,8 @@ if (!function_exists('uploadFile')) {
  * @return [type]         [description]
  */
 if (!function_exists('imageOptimation')) {
-    function imageOptimation($image, $folder, $saveas) {
+    function imageOptimation($image, $folder, $saveas)
+    {
         $config = config();
 
         // image config
@@ -676,23 +712,23 @@ if (!function_exists('imageOptimation')) {
             'sm' => array(
                 'x' => 200,
                 'y' => 150,
-                'b' => 4
+                'b' => 4,
             ),
             'md' => array(
                 'x' => 400,
                 'y' => 300,
-                'b' => 8
+                'b' => 8,
             ),
             'lg' => array(
                 'x' => 800,
                 'y' => 600,
-                'b' => 16
+                'b' => 16,
             ),
             'fb' => array(
                 'x' => 1200,
                 'y' => 630,
-                'b' => 18
-            )
+                'b' => 18,
+            ),
         );
 
         if (isset($config['imageoptim'])) {
@@ -733,11 +769,11 @@ if (!function_exists('imageOptimation')) {
                 $bgw = $r < $or ? $config['x'] : ceil($config['y'] * $r);
                 $bgh = $r < $or ? ceil($config['x'] * $h / $w) : $config['y'];
                 // Set posisi gambar utama di kanvas
-                $icx =  $r < $or ? ceil(($config['x'] - $nw) / 2) : 0;
-                $icy =  $r < $or ? 0 : ceil(($config['y'] - $nh) / 2);
+                $icx = $r < $or ? ceil(($config['x'] - $nw) / 2) : 0;
+                $icy = $r < $or ? 0 : ceil(($config['y'] - $nh) / 2);
                 // Set posisi gambar latar di kanvas
-                $bgcx =  $r < $or ? 0 : ceil(($config['x'] - $bgw) / 2);
-                $bgcy =  $r < $or ? ceil(($config['y'] - $bgh) / 2) : 0;
+                $bgcx = $r < $or ? 0 : ceil(($config['x'] - $bgw) / 2);
+                $bgcy = $r < $or ? ceil(($config['y'] - $bgh) / 2) : 0;
                 // Lalu clone gambar dasar untuk dijadikan gambar latar,
                 // ubah ukurannya, lalu blur dan set opacity-nya
                 $bgimage = clone $baseimage; //$baseimage->clone();
@@ -751,7 +787,7 @@ if (!function_exists('imageOptimation')) {
                 $output = clone $compimage; //$compimage->clone();
                 $compimage->destroy();
             }
-            
+
             // Atau, jika dimensinya sesuai, langsung pakai gambar utama
             else {
                 // Lalu cloen gambar utama untuk dijadikan output
@@ -767,12 +803,15 @@ if (!function_exists('imageOptimation')) {
             $output->setInterlaceScheme(Imagick::INTERLACE_PLANE);
             $output->stripImage();
             // Simpan gambar, namun jika gagal langsung return false
-            if (!$output->writeImage($folder."{$savename_suffix}")) return false;
+            if (!$output->writeImage($folder . "{$savename_suffix}")) {
+                return false;
+            }
+
             // Destroy :)
             $baseimage->destroy();
             $output->destroy();
         }
-        
+
         return true;
     }
 }
