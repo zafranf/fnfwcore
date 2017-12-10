@@ -12,5 +12,8 @@
     "authors": [{
         "name": "zafranf",
         "email": "zafran@fadilah.id"
-    }]
+    }],
+    "config": {
+        "preferred-install": "dist"
+    }
 }
