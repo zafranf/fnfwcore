@@ -338,6 +338,77 @@ if (!function_exists('debug')) {
 }
 
 /**
+ * [nf description]
+ * @param  [type] $num [description]
+ * @return [type]      [description]
+ */
+if (!function_exists('nf')) {
+    function nf($num, $digit = 0, $coms = ",", $dots = ".")
+    {
+        return number_format($num, $digit, $coms, $dots);
+    }
+}
+
+/**
+ * [slug description]
+ * @param  [type] $text [description]
+ * @param  string $rep  [description]
+ * @return [type]       [description]
+ */
+if (!function_exists('slug')) {
+    function slug($text, $rep = "-")
+    {
+        $text = strtolower($text);
+        $text = preg_replace('([\s\W\_]+)', $rep, $text);
+
+        return $text;
+    }
+}
+
+/**
+ * [url description]
+ * @param  string  $url  [description]
+ * @param  boolean $full [description]
+ * @return [type]        [description]
+ */
+if (!function_exists('url')) {
+    function url($url = "", $full = false)
+    {
+        if (filter_var($url, FILTER_VALIDATE_URL)) {
+            return $url;
+        }
+        if ($full) {
+            $urls = explode("?", $_SERVER['REQUEST_URI']);
+            $segment = $urls[0];
+        }
+        return sprintf(
+            "%s://%s%s%s",
+            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+            $_SERVER['SERVER_NAME'] . '/',
+            isset($segment) ? ltrim($segment, '/') : '',
+            $url != "/" ? ltrim($url, '/') : ''
+        );
+    }
+}
+
+/**
+ * [config description]
+ * @return [type] [description]
+ */
+if (!function_exists('config')) {
+    function config($key = null)
+    {
+        $conf = require ROOT_PATH . 'vendor/zafranf/fnfwcore/src/Config/config.php';
+
+        if (!is_null($key) && isset($conf[$key])) {
+            $conf = $conf[$key];
+        }
+
+        return $conf;
+    }
+}
+
+/**
  * [isLogin description]
  * @return boolean [description]
  */

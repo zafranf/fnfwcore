@@ -1,26 +1,30 @@
 <?php
 /* default configuration */
 $config = [
+    /* default controller */
+    'default_controller' => 'welcome',
+
     /* app config */
     'app' => [
-        'name' => 'Functional Framework',
+        'name' => '(fn) FW - functional Framework',
         'url' => 'http://localhost',
         'key' => 'fnfw',
         'lang' => 'en',
         'debug' => false,
-        'view_folder' => 'views/',
-        'controller_folder' => 'controllers/',
+        'view_folder' => APP_PATH . 'views/',
+        'controller_folder' => APP_PATH . 'controllers/',
     ],
-
-    'default_controller' => 'welcome',
 
     /* database setting */
     'database' => [
+        'driver' => 'mysql',
         'host' => 'localhost',
         'username' => 'root',
         'password' => '',
         'dbname' => '',
         'table_prefix' => '',
+        'charset' => 'utf8',
+        'collation' => 'utf8_unicode_ci',
     ],
 
     /* email setting */

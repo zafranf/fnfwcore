@@ -84,16 +84,16 @@ return $buffer;
 }*/
 
 if (!function_exists('cacheMemcached')) {
-    function cacheMemcached($name, $buffer, $time = 10)
+    function cacheMemcached($name, $data, $time = 10)
     {
         $cache = getMemcached($name);
-        if ($cache && (strlen(trim($buffer)) == strlen(trim($cache)))) {
-            $buffer = $cache;
+        if ($cache && (strlen(trim($data)) == strlen(trim($cache)))) {
+            $data = $cache;
         } else {
-            setMemcached($name, $buffer, $time);
+            setMemcached($name, $data, $time);
         }
 
-        return $buffer;
+        return $data;
     }
 }
 
@@ -103,25 +103,18 @@ if (!function_exists('cacheMemcached')) {
  * @return [type]         [description]
  */
 if (!function_exists('cache')) {
-    function cache($key, $data)
+    function cache($name, $data)
     {
-        $config = config();
+        $name = md5($name);
+        $driver = config('cache')['driver'];
 
-        // if ($config['cache']['active']) {
-        // $url = getUrl();
-
-        /* $minify = $config['minify'];
-        if ($minify) {
-        $data = sanitize_output($data);
-        } */
-
-        $driver = $config['cache']['driver'];
         if ($driver == "file") {
-            // $data = cacheFile($url, $data);
+            // $data = cacheFile($name, $data);
         } else if ($driver == "memcached") {
-            $data = cacheMemcached($key, $data);
+            $data = cacheMemcached($name, $data);
+        } else if ($driver == "redis") {
+            // $data = cacheRedis($name, $data);
         }
-        // }
 
         return $data;
     }
@@ -142,41 +135,5 @@ if (!function_exists('getUrl')) {
         }
 
         return $url;
-    }
-}
-
-/**
- * [sanitize_output description]
- * @param  [type] $buffer [description]
- * @return [type]         [description]
- */
-if (!function_exists('sanitize_output')) {
-    function sanitize_output($buffer)
-    {
-        $search = array(
-            // '/\s*([!%&*\(\)\-=+\[\]\{\}|;:,.<> ?\/])\s*/s',
-            '/\s*([~!@*\(\)+=\{\}\[\]])\s*/s', // remove white–space(s) around punctuation(s)
-            '/\s+\/\>/s', // remove space in single tag close
-            '/\>\s+\</s', // remove space between tags
-            '/\/\*(?!\[if)([\s\S]+?)\*\//s', // remove comment except IE
-            '/<\!-- (?!\[if|\<\/body)([\s\S]+?)-->/s', // remove comment except IE
-            '/\>[^\S ]+/s', // strip whitespaces after tags, except space
-            '/[^\S ]+\</s', // strip whitespaces before tags, except space
-            '/(\s)+/s', // shorten multiple whitespace sequences
-        );
-        $replace = array(
-            '$1',
-            '/>',
-            '><',
-            '',
-            '',
-            '>',
-            '<',
-            '\\1',
-        );
-
-        $buffer = preg_replace($search, $replace, $buffer);
-
-        return $buffer;
     }
 }
