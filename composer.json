@@ -5,13 +5,12 @@
     "require": {
         "php": ">=5.6.4",
         "phpmailer/phpmailer": "^6.0",
-        "filp/whoops": "^2.1"
+        "filp/whoops": "^2.1",
+        "usmanhalalit/pixie": "2.*@dev"
     },
     "license": "MIT",
-    "authors": [
-        {
-            "name": "zafranf",
-            "email": "zafran@fadilah.id"
-        }
-    ]
+    "authors": [{
+        "name": "zafranf",
+        "email": "zafran@fadilah.id"
+    }]
 }
