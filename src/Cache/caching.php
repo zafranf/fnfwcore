@@ -1,139 +1,154 @@
 <?php
 /**
- * [getMemcached description]
+ * [configPool description]
  * @return [type] [description]
  */
-if (!function_exists('getConnectMC')) {
-    function getConnectMC()
+if (!function_exists('configPool')) {
+    function configPool()
     {
-        $config = config();
-
-        $mc = new Memcached();
-        $mc->addServer($config['memcached']['host'], $config['memcached']['port']);
-
-        return $mc;
-    }
-}
-
-/**
- * [setMemcached description]
- * @param [type] $name [description]
- * @param [type] $data [description]
- * @param [type] $time [description]
- */
-if (!function_exists('setMemcached')) {
-    function setMemcached($name, $data, $time = 10)
-    {
-        $mc = getConnectMC();
-
-        $time = $time * 60;
-        $name = md5($name);
-        $cache = $mc->set($name, $data, $time);
-
-        return $cache;
-    }
-}
-
-/**
- * [getMemcached description]
- * @param  [type] $name [description]
- * @return [type]       [description]
- */
-if (!function_exists('getMemcached')) {
-    function getMemcached($name)
-    {
-        $mc = getConnectMC();
-
-        $name = md5($name);
-        $cache = $mc->get($name);
-
-        return $cache;
-    }
-}
-
-/**
- * [cacheFile description]
- * @param  [type] $name   [description]
- * @param  [type] $buffer [description]
- * @return [type]         [description]
- */
-/*function cacheFile($name, $buffer) {
-global $config;
-
-$cachename = md5($name);
-$target = STORAGE_PATH."cache/".$cachename;
-
-if (file_exists($target)) {
-$cache = trim(file_get_contents($target));
-$content = explode('[fnfw]', $cache);
-// if ((time()-100)<$content[0] && strlen(trim($buffer))==strlen(trim($content[1]))) {
-if (strlen(trim($buffer))==strlen(trim($content[1]))) {
-$buffer = trim($content[1]);
-} else {
-$cache = trim(time().'[fnfw]'.$buffer);
-file_put_contents($target, $cache);
-chmod($target, 0777);
-}
-} else {
-$cache = trim(time().'[fnfw]'.$buffer);
-file_put_contents($target, $cache);
-chmod($target, 0777);
-}
-
-return $buffer;
-}*/
-
-if (!function_exists('cacheMemcached')) {
-    function cacheMemcached($name, $data, $time = 10)
-    {
-        $cache = getMemcached($name);
-        if ($cache && (strlen(trim($data)) == strlen(trim($cache)))) {
-            $data = $cache;
+        $driver = config('cache')['driver'];
+        if ($driver == "file") {
+            $driver = setupFilesystem();
+        } else if ($driver == "sqlite") {
+            $driver = setupSQLite();
+        } else if ($driver == "apc") {
+            $driver = setupAPC();
+        } else if ($driver == "memcached") {
+            $driver = setupMemcached();
+        } else if ($driver == "redis") {
+            $driver = setupRedis();
         } else {
-            setMemcached($name, $data, $time);
+            $driver = setupEphemeral();
         }
 
-        return $data;
+        return new \Stash\Pool($driver);
+    }
+}
+
+/**
+ * [setupFilesystem description]
+ * @return [type] [description]
+ */
+if (!function_exists('setupFilesystem')) {
+    function setupFilesystem()
+    {
+        $options = [
+            'path' => STORAGE_PATH . 'cache/',
+            'filePermissions' => 777,
+            'dirPermissions' => 777,
+        ];
+
+        return new \Stash\Driver\FileSystem($options);
+    }
+}
+
+/**
+ * [setupSQLite description]
+ * @return [type] [description]
+ */
+if (!function_exists('setupSQLite')) {
+    function setupSQLite()
+    {
+        $options = [
+            'extension' => 'pdo',
+            'path' => STORAGE_PATH . 'cache/',
+            'filePermissions' => 777,
+            'dirPermissions' => 777,
+        ];
+
+        return new \Stash\Driver\Sqlite($options);
+    }
+}
+
+/**
+ * [setupAPC description]
+ * @return [type] [description]
+ */
+if (!function_exists('setupAPC')) {
+    function setupAPC()
+    {
+        $options = [
+            'ttl' => (config('cache')['lifetime'] * 60),
+            'namespace' => md5(__file__),
+        ];
+
+        return new \Stash\Driver\Apc($options);
+    }
+}
+
+/**
+ * [setupMemcached description]
+ * @return [type] [description]
+ */
+if (!function_exists('setupMemcached')) {
+    function setupMemcached()
+    {
+        $options = [
+            'servers' => [
+                config('memcached')['host'],
+                config('memcached')['port'],
+            ],
+            'serializer' => 'json',
+        ];
+
+        return new \Stash\Driver\Memcache($options);
+    }
+}
+
+/**
+ * [setupRedis description]
+ * @return [type] [description]
+ */
+if (!function_exists('setupRedis')) {
+    function setupRedis()
+    {
+        $options = [
+            'servers' => [
+                config('redis')['host'],
+                config('redis')['port'],
+            ],
+        ];
+
+        return new \Stash\Driver\Redis($options);
+    }
+}
+
+/**
+ * [setupEphemeral description]
+ * @return [type] [description]
+ */
+if (!function_exists('setupEphemeral')) {
+    function setupEphemeral()
+    {
+        $options = [];
+
+        return new \Stash\Driver\Ephemeral($options);
     }
 }
 
 /**
  * [cache description]
- * @param  [type] $buffer [description]
- * @return [type]         [description]
- */
-if (!function_exists('cache')) {
-    function cache($name, $data)
-    {
-        $name = md5($name);
-        $driver = config('cache')['driver'];
-
-        if ($driver == "file") {
-            // $data = cacheFile($name, $data);
-        } else if ($driver == "memcached") {
-            $data = cacheMemcached($name, $data);
-        } else if ($driver == "redis") {
-            // $data = cacheRedis($name, $data);
-        }
-
-        return $data;
-    }
-}
-
-/**
- * [getUrl description]
  * @return [type] [description]
  */
-if (!function_exists('getUrl')) {
-    function getUrl()
+if (!function_exists('cache')) {
+    function cache($key, $data = null, $ttl = null)
     {
-        if (isset($_SERVER['REQUEST_URI'])) {
-            $url = $_SERVER['REQUEST_URI'];
-        } else {
-            $url = $_SERVER['SCRIPT_NAME'];
-            $url .= (!empty($_SERVER['QUERY_STRING'])) ? '?' . $_SERVER['QUERY_STRING'] : '';
+        $pool = configPool();
+
+        $item = $pool->getItem(md5($key));
+
+        if (!is_null($data)) {
+            if (is_null($ttl)) {
+                $ttl = config('cache')['lifetime'];
+            }
+            $ttl *= 60;
+
+            $item->expiresAfter($ttl);
+            $item->set($data);
+
+            $pool->save($item);
         }
 
-        return $url;
+        return $item->get();
     }
 }

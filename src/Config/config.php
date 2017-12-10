@@ -43,7 +43,6 @@ $config = [
 
     /* cache setting */
     'cache' => [
-        'active' => true,
         'driver' => 'file',
         'lifetime' => 10,
     ],
@@ -52,6 +51,12 @@ $config = [
     'memcached' => [
         'host' => '127.0.0.1',
         'port' => 11211,
+    ],
+
+    /* redis setting */
+    'redis' => [
+        'host' => '127.0.0.1',
+        'port' => 6379,
     ],
 
     /* minify output */
