@@ -16,7 +16,7 @@ $config = [
     ],
 
     /* database setting */
-    'database' => [
+    'db' => [
         'driver' => 'mysql',
         'host' => 'localhost',
         'username' => 'root',
@@ -28,7 +28,7 @@ $config = [
     ],
 
     /* email setting */
-    'email' => [
+    'mail' => [
         'host' => 'mail.domain.com',
         'port' => 465,
         'username' => 'name@mail.com',
@@ -43,12 +43,20 @@ $config = [
 
     /* cache setting */
     'cache' => [
-        'active' => true,
         'driver' => 'file',
+        'lifetime' => 10,
     ],
+
+    /* memcached setting */
     'memcached' => [
         'host' => '127.0.0.1',
         'port' => 11211,
+    ],
+
+    /* redis setting */
+    'redis' => [
+        'host' => '127.0.0.1',
+        'port' => 6379,
     ],
 
     /* minify output */

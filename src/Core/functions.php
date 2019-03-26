@@ -34,7 +34,7 @@ function exception_handler()
 if (!function_exists('_log')) {
     function _log($data)
     {
-        $target = STORAGE_PATH . "logs/fnfw-" . date("Y-m-d") . ".log";
+        $target = STORAGE_PATH . "logs/" . date("Ymd") . ".log";
         $log = "[" . date("Y-m-d H:i:s") . "] " . $data . "\r\n";
 
         file_put_contents($target, $log, FILE_APPEND);
@@ -51,25 +51,6 @@ if (!function_exists('_goto')) {
     {
         header("location: " . $url);
         die();
-    }
-}
-
-/**
- * [_bool description]
- * @param  [type]  $data [description]
- * @param  boolean $die  [description]
- * @return [type]        [description]
- */
-if (!function_exists('_bool')) {
-    function _bool($bool = false)
-    {
-        $bool = strtolower(trim($bool));
-        if ($bool == 'true' || $bool == 't' || $bool == 'yes' || $bool == 'y' || $bool == '1') {
-            return true;
-        } else {
-            return false;
-        }
-        ;
     }
 }
 
@@ -319,96 +300,6 @@ if (!function_exists('reArrangeFiles')) {
 }
 
 /**
- * [debug description]
- * @param  [type]  $data [description]
- * @param  boolean $die  [description]
- * @return [type]        [description]
- */
-if (!function_exists('debug')) {
-    function debug()
-    {
-        array_map(function ($data) {
-            echo "<pre>";
-            print_r($data);
-            echo "</pre>";
-        }, func_get_args());
-
-        die();
-    }
-}
-
-/**
- * [nf description]
- * @param  [type] $num [description]
- * @return [type]      [description]
- */
-if (!function_exists('nf')) {
-    function nf($num, $digit = 0, $coms = ",", $dots = ".")
-    {
-        return number_format($num, $digit, $coms, $dots);
-    }
-}
-
-/**
- * [slug description]
- * @param  [type] $text [description]
- * @param  string $rep  [description]
- * @return [type]       [description]
- */
-if (!function_exists('slug')) {
-    function slug($text, $rep = "-")
-    {
-        $text = strtolower($text);
-        $text = preg_replace('([\s\W\_]+)', $rep, $text);
-
-        return $text;
-    }
-}
-
-/**
- * [url description]
- * @param  string  $url  [description]
- * @param  boolean $full [description]
- * @return [type]        [description]
- */
-if (!function_exists('url')) {
-    function url($url = "", $full = false)
-    {
-        if (filter_var($url, FILTER_VALIDATE_URL)) {
-            return $url;
-        }
-        if ($full) {
-            $urls = explode("?", $_SERVER['REQUEST_URI']);
-            $segment = $urls[0];
-        }
-        return sprintf(
-            "%s://%s%s%s",
-            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
-            $_SERVER['SERVER_NAME'] . '/',
-            isset($segment) ? ltrim($segment, '/') : '',
-            $url != "/" ? ltrim($url, '/') : ''
-        );
-    }
-}
-
-/**
- * [config description]
- * @return [type] [description]
- */
-if (!function_exists('config')) {
-    function config($key = null)
-    {
-        $conf = require ROOT_PATH . 'vendor/zafranf/fnfwcore/src/Config/config.php';
-
-        if (!is_null($key) && isset($conf[$key])) {
-            $conf = $conf[$key];
-        }
-
-        return $conf;
-    }
-}
-
-/**
  * [isLogin description]
  * @return boolean [description]
  */
@@ -420,25 +311,6 @@ if (!function_exists('isLogin')) {
         }
 
         return false;
-    }
-}
-
-/**
- * [auth description]
- * @return boolean [description]
- */
-if (!function_exists('auth')) {
-    function auth($key = '')
-    {
-        $auth = [];
-        if (isLogin()) {
-            $auth = _session('user');
-            if ($key != '') {
-                $auth = $auth[$key];
-            }
-        }
-
-        return $auth;
     }
 }
 
@@ -550,7 +422,7 @@ if (!function_exists('getParameters')) {
 if (!function_exists('sendMail')) {
     function sendMail($par = [])
     {
-        $cfg = config('email');
+        $cfg = config('mail');
 
         /* Start PHPMailer */
         $mail = new \PHPMailer\PHPMailer\PHPMailer;

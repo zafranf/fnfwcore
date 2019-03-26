@@ -7,10 +7,10 @@
  */
 function db($config = [])
 {
-    if (empty($config)) {
-        $config = config('database');
-    }
+    /* merge config */
+    $config = array_merge(config('database'), $config);
 
+    /* connect */
     $connection = new \Pixie\Connection($config['driver'], [
         'host' => $config['host'],
         'database' => $config['dbname'],
