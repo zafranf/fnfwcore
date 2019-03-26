@@ -162,11 +162,12 @@ if (!function_exists('url')) {
 if (!function_exists('bool')) {
     function bool($str = false)
     {
-        if (is_string($str) || is_int($str)) {
+        $true = ['true', 't', 'yes', 'y', '1', 'on'];
+
+        if (is_string($str) || is_int($str) || is_bool($str)) {
             $str = strtolower(trim($str));
-            if ($str == 'true' || $str == 't' || $str == 'yes' || $str == 'y' || $str == '1') {
-                return true;
-            }
+
+            return in_array($str, $true);
         }
 
         return false;
