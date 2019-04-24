@@ -135,22 +135,23 @@ if (!function_exists('slug')) {
  * @return [type]        [description]
  */
 if (!function_exists('url')) {
-    function url($url = "", $full = false)
+    function url($url = "", $secure = false)
     {
+        /* validas8 */
         if (filter_var($url, FILTER_VALIDATE_URL)) {
             return $url;
         }
-        if ($full) {
-            $urls = explode("?", $_SERVER['REQUEST_URI']);
-            $segment = $urls[0];
+
+        /* set variable */
+        $http = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') ? 'https' : 'http';
+        $s1 = $secure ? 'https' : $http;
+        $s2 = _server('SERVER_NAME') . '/';
+        if ($config['app']['debug']) {
+            $s2 = _server('HTTP_HOST') . '/';
         }
-        return sprintf(
-            "%s://%s%s%s",
-            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
-            $_SERVER['SERVER_NAME'] . '/',
-            isset($segment) ? ltrim($segment, '/') : '',
-            $url != "/" ? ltrim($url, '/') : ''
-        );
+        $s3 = ($url != "/") ? ltrim($url, '/') : '';
+
+        return sprintf("%s://%s%s", $s1, $s2, $s3);
     }
 }
 
@@ -211,5 +212,69 @@ if (!function_exists('auth')) {
         }
 
         return $auth;
+    }
+}
+
+if (!function_exists('load_css')) {
+    /**
+     * Generate link stylesheet tag
+     *
+     * @param string $file
+     * @param array $attributes
+     * @return string
+     */
+    function load_css($file = "", $attributes = [])
+    {
+        if (file_exists(public_path($file))) {
+            $mtime = filemtime(public_path($file));
+
+            return '<link href="' . url($file) . '?' . $mtime . '" rel="stylesheet">';
+        }
+    }
+}
+
+if (!function_exists('load_js')) {
+    /**
+     * Generate script tag
+     *
+     * @param string $file
+     * @param boolean $async
+     * @param array $attributes
+     * @return string
+     */
+    function load_js($file = "", $async = false, $attributes = [])
+    {
+        if (file_exists(public_path($file))) {
+            $mtime = filemtime(public_path($file));
+            $async = ($async) ? 'async' : '';
+
+            return '<script src="' . url($file) . '?' . $mtime . '" ' . $async . '></script>';
+        }
+    }
+}
+
+if (!function_exists('public_path')) {
+    /**
+     * Get public folder path
+     *
+     * @param string $file
+     * @return string
+     */
+    function public_path($file = "")
+    {
+        return PUBLIC_PATH . $file;
+    }
+}
+
+if (!function_exists('storage_path')) {
+    /**
+     * Get storage folder path
+     *
+     * @param string $file
+     * @return string
+     */
+    function storage_path($file = "")
+    {
+        return STORAGE_PATH . $file;
     }
 }
