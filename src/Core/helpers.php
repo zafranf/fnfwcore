@@ -146,7 +146,7 @@ if (!function_exists('url')) {
         $http = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') ? 'https' : 'http';
         $s1 = $secure ? 'https' : $http;
         $s2 = _server('SERVER_NAME') . '/';
-        if ($config['app']['debug']) {
+        if (config('app')['debug']) {
             $s2 = _server('HTTP_HOST') . '/';
         }
         $s3 = ($url != "/") ? ltrim($url, '/') : '';
@@ -193,36 +193,13 @@ if (!function_exists('is_json')) {
 }
 
 /**
- * [auth description]
- * @return boolean [description]
+ * Generate link stylesheet tag
+ *
+ * @param string $file
+ * @param array $attributes
+ * @return string
  */
-if (!function_exists('auth')) {
-    function auth($key = '')
-    {
-        $auth = [];
-        if (isLogin()) {
-            $auth = _session('user');
-            if ($key != '') {
-                if (isset($auth[$key])) {
-                    $auth = $auth[$key];
-                } else {
-                    return null;
-                }
-            }
-        }
-
-        return $auth;
-    }
-}
-
 if (!function_exists('load_css')) {
-    /**
-     * Generate link stylesheet tag
-     *
-     * @param string $file
-     * @param array $attributes
-     * @return string
-     */
     function load_css($file = "", $attributes = [])
     {
         if (file_exists(public_path($file))) {
@@ -233,15 +210,15 @@ if (!function_exists('load_css')) {
     }
 }
 
+/**
+ * Generate script tag
+ *
+ * @param string $file
+ * @param boolean $async
+ * @param array $attributes
+ * @return string
+ */
 if (!function_exists('load_js')) {
-    /**
-     * Generate script tag
-     *
-     * @param string $file
-     * @param boolean $async
-     * @param array $attributes
-     * @return string
-     */
     function load_js($file = "", $async = false, $attributes = [])
     {
         if (file_exists(public_path($file))) {
@@ -253,26 +230,26 @@ if (!function_exists('load_js')) {
     }
 }
 
+/**
+ * Get public folder path
+ *
+ * @param string $file
+ * @return string
+ */
 if (!function_exists('public_path')) {
-    /**
-     * Get public folder path
-     *
-     * @param string $file
-     * @return string
-     */
     function public_path($file = "")
     {
         return PUBLIC_PATH . $file;
     }
 }
 
+/**
+ * Get storage folder path
+ *
+ * @param string $file
+ * @return string
+ */
 if (!function_exists('storage_path')) {
-    /**
-     * Get storage folder path
-     *
-     * @param string $file
-     * @return string
-     */
     function storage_path($file = "")
     {
         return STORAGE_PATH . $file;

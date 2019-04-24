@@ -315,6 +315,29 @@ if (!function_exists('isLogin')) {
 }
 
 /**
+ * [auth description]
+ * @return boolean [description]
+ */
+if (!function_exists('auth')) {
+    function auth($key = '')
+    {
+        $auth = [];
+        if (isLogin()) {
+            $auth = _session('user');
+            if ($key != '') {
+                if (isset($auth[$key])) {
+                    $auth = $auth[$key];
+                } else {
+                    return null;
+                }
+            }
+        }
+
+        return $auth;
+    }
+}
+
+/**
  * [setFlashMessage description]
  * @param string $key  [description]
  * @param string $val  [description]
