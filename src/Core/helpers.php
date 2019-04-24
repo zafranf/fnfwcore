@@ -146,7 +146,7 @@ if (!function_exists('url')) {
         $http = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') ? 'https' : 'http';
         $s1 = $secure ? 'https' : $http;
         $s2 = _server('SERVER_NAME') . '/';
-        if (config('app')['debug']) {
+        if (!filter_var($s2, FILTER_VALIDATE_URL)) {
             $s2 = _server('HTTP_HOST') . '/';
         }
         $s3 = ($url != "/") ? ltrim($url, '/') : '';
