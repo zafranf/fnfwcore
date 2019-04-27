@@ -113,6 +113,20 @@ if (!function_exists('nf')) {
 }
 
 /**
+ * spaces function
+ *
+ * @param integer $n
+ * @param string $space
+ * @return void
+ */
+if (!function_exists('spaces')) {
+    function spaces($n = 4, $space = "&nbsp;")
+    {
+        return str_repeat($space, $n);
+    }
+}
+
+/**
  * [slug description]
  * @param  [type] $text [description]
  * @param  string $rep  [description]

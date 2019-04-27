@@ -11,6 +11,11 @@ if ($_SERVER['REQUEST_URI'] != '/') {
     $file = trim($uri[0], '/');
 }
 
+/* cek root tanpa parameter */
+if (!isset($file) || empty($file)) {
+    $file = config('default_controller');
+}
+
 /* check existing file */
 $file = checkRouteFile($file, $routes);
 

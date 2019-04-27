@@ -338,6 +338,23 @@ if (!function_exists('auth')) {
 }
 
 /**
+ * [setFlashMessages description]
+ * @param array $messages  [description]
+ * @param string $type [description]
+ * @return [type] [description]
+ */
+if (!function_exists('setFlashMessages')) {
+    function setFlashMessages(array $messages, $type = 'failed')
+    {
+        /* Set the value */
+        $_SESSION['flash_messages'] = $messages;
+
+        /* Set type message */
+        $_SESSION['flash_messages']['type_message'] = $type;
+    }
+}
+
+/**
  * [setFlashMessage description]
  * @param string $key  [description]
  * @param string $val  [description]
@@ -353,17 +370,15 @@ if (!function_exists('setFlashMessage')) {
             $val = null;
         }
 
-        /* Set type message */
-        $_SESSION['flash_messages']['type_message'] = $type;
-
         /* Check the value */
         if (is_null($val)) {
             $_SESSION['flash_messages']['message'] = $key;
         } else {
-            $_SESSION['flash_messages']['message'][$key] = $val;
+            $_SESSION['flash_messages'][$key] = $val;
         }
 
-        return true;
+        /* Set type message */
+        $_SESSION['flash_messages']['type_message'] = $type;
     }
 }
 
