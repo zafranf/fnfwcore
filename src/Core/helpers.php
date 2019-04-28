@@ -113,20 +113,6 @@ if (!function_exists('nf')) {
 }
 
 /**
- * spaces function
- *
- * @param integer $n
- * @param string $space
- * @return void
- */
-if (!function_exists('spaces')) {
-    function spaces($n = 4, $space = "&nbsp;")
-    {
-        return str_repeat($space, $n);
-    }
-}
-
-/**
  * [slug description]
  * @param  [type] $text [description]
  * @param  string $rep  [description]
@@ -158,6 +144,12 @@ if (!function_exists('url')) {
 
         /* set variable */
         $http = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') ? 'https' : 'http';
+        if (_server('HTTP_CF_VISITOR') !== null) {
+            $cf = json_decode(_server('HTTP_CF_VISITOR'));
+            if (isset($cf->scheme)) {
+                $http = $cf->scheme;
+            }
+        }
         $s1 = $secure ? 'https' : $http;
         $s2 = _server('SERVER_NAME') . '/';
         if (!filter_var($s2, FILTER_VALIDATE_URL)) {
@@ -268,4 +260,14 @@ if (!function_exists('storage_path')) {
     {
         return STORAGE_PATH . $file;
     }
+}
+
+function generateToken($string)
+{
+    return md5($string . config('app')['key']);
+}
+
+function spaces($n = 4, $space = "&nbsp;")
+{
+    return str_repeat($space, $n);
 }

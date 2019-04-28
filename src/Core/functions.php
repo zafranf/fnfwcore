@@ -338,6 +338,139 @@ if (!function_exists('auth')) {
 }
 
 /**
+ * Undocumented function
+ *
+ * @return void
+ */
+if (!function_exists('visitorLog')) {
+    function visitorLog()
+    {
+        $device = '';
+        $agent = new \Jenssegers\Agent\Agent();
+        if ($agent->isPhone()) {
+            $device = 'phone';
+        } else if ($agent->isTablet()) {
+            $device = 'tablet';
+        } else if ($agent->isDesktop()) {
+            $device = 'desktop';
+        }
+        $device_name = $agent->device();
+        $ip = (_server('REMOTE_ADDR') != null) ? _server('REMOTE_ADDR') : '127.0.0.1';
+        $browser_agent = $agent->getUserAgent();
+        $browser = $agent->browser();
+        $browser_version = $agent->version($browser);
+        $os = $agent->platform();
+        $os_version = $agent->version($os);
+        $page = (_server('REQUEST_URI') != null) ? _server('REQUEST_URI') : '/';
+        $referrer = (_server('HTTP_REFERER') != null) ? _server('HTTP_REFERER') : '';
+        $referral = str_replace(url('/'), "/", $referrer);
+        $is_robot = $agent->isRobot() ? 1 : 0;
+        $robot_name = $is_robot ? $agent->robot : '';
+
+        $params = [
+            'ip' => $ip,
+            'page' => $page,
+            'referral' => $referral,
+            'agent' => $browser_agent,
+            'browser' => $browser,
+            'browser_version' => $browser_version,
+            'device' => $device,
+            'device_name' => $device_name,
+            'os' => $os,
+            'os_version' => $os_version,
+            'is_robot' => $is_robot,
+            'robot_name' => $robot_name,
+        ];
+
+        $table = db()->table('visitor_logs');
+        $q = $table->where(function ($q) {
+            $q->whereBetween('created_at', date("Y-m-d H:00:00"), date("Y-m-d H:59:59"));
+        });
+        foreach ($params as $key => $value) {
+            $q->where($key, $value);
+        }
+        $find = $q->first();
+
+        if (!$find) {
+            $params['count'] = db()->raw('count+1');
+            $params['created_at'] = date("Y-m-d H:i:s");
+            $table->insert($params);
+        } else {
+            $q->update([
+                'count' => db()->raw('count+1'),
+            ]);
+        }
+    }
+}
+
+/**
+ * Undocumented function
+ *
+ * @param [type] $description
+ * @return void
+ */
+if (!function_exists('activityLog')) {
+    function activityLog($description)
+    {
+        /* Filter password */
+        $sensor = 'xxx';
+        if (isset($_POST['password'])) {
+            $_POST['password'] = $sensor;
+        }
+        if (isset($_POST['password_confirmation'])) {
+            $_POST['password_confirmation'] = $sensor;
+        }
+        if (isset($_POST['user_password'])) {
+            $_POST['user_password'] = $sensor;
+        }
+
+        $save = db()->table('activity_logs')->insert([
+            'description' => $description,
+            'method' => _server('REQUEST_METHOD'),
+            'path' => _server('REQUEST_URI'),
+            'ip' => _server('REMOTE_ADDR'),
+            'get' => json_encode(_get()),
+            'post' => json_encode(_post()),
+            'files' => json_encode(_files()),
+            'created_at' => date('Y-m-d H:i:s'),
+            // 'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+    }
+}
+
+/**
+ * Undocumented function
+ *
+ * @param array $params
+ * @return void
+ */
+if (!function_exists('validation')) {
+    function validation(array $params)
+    {
+        $requests = $params['requests'];
+        $rules = $params['rules'];
+        $messages = $params['messages'] ?? [];
+        $aliases = $params['aliases'] ?? [];
+        $redirect = $params['redirect'] ?? _server('HTTP_REFERER');
+
+        $validator = new \Rakit\Validation\Validator;
+        $validation = $validator->make($requests, $rules);
+        if (!empty($messages)) {
+            $validation->setMessages($messages);
+        }
+        if (!empty($aliases)) {
+            $validation->setAliases($aliases);
+        }
+        $validation->validate();
+
+        if ($validation->fails()) {
+            setFlashMessages($validation->errors->firstOfAll());
+            return _goto(($redirect ?? '/'));
+        }
+    }
+}
+
+/**
  * [setFlashMessages description]
  * @param array $messages  [description]
  * @param string $type [description]
@@ -415,16 +548,38 @@ if (!function_exists('checkFlashMessages')) {
 }
 
 /**
+ * Undocumented function
+ *
+ * @param [type] $data
+ * @param integer $statusCode
+ * @param boolean $json
+ * @return void
+ */
+if (!function_exists('response')) {
+    function response($data, $statusCode = 200, $json = true)
+    {
+        http_response_code($statusCode);
+        if ($json) {
+            header('Content-Type: application/json');
+            die(json_encode($data));
+        }
+
+        echo $data;
+    }
+}
+
+/**
  * [getRoute description]
  * @return [type] [description]
  */
 if (!function_exists('getRoute')) {
     function getRoute()
     {
+        $uri = isset($_SERVER['REQUEST_URI']) ? explode("?", $_SERVER['REQUEST_URI'])[0] : '';
+
         $exclude = ["index", "add", "edit", "delete", "detail", "save", "update"];
-        $uri = explode("?", $_SERVER['REQUEST_URI'])[0];
-        foreach ($exclude as $exc) {
-            $uri = preg_replace("/\/" . $exc . "(\S+)?/", "", $uri);
+        foreach ($exclude as $excl) {
+            $uri = preg_replace("/\/" . $excl . "(\S+)?/", "", $uri);
         }
 
         return $uri;
