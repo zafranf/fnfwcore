@@ -9,12 +9,14 @@
     },
     "require": {
         "php": ">=5.6.4",
-        "phpmailer/phpmailer": "^6.0",
-        "usmanhalalit/pixie": "2.*@dev",
-        "tedivm/stash": "^0.14.2",
+        "filp/whoops": "^2.1",
+        "guzzlehttp/guzzle": "^6.3",
         "jenssegers/agent": "^2.6",
+        "nesbot/carbon": "^2.17",
+        "phpmailer/phpmailer": "^6.0",
         "rakit/validation": "^1.1",
-        "filp/whoops": "^2.1"
+        "tedivm/stash": "^0.14.2",
+        "usmanhalalit/pixie": "2.*@dev"
     },
     "require-dev": {},
     "license": "MIT",
