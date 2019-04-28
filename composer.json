@@ -2,12 +2,18 @@
     "name": "zafranf/fnfwcore",
     "description": "(fn)FW Core",
     "type": "library",
+    "autoload": {
+        "files": [
+            "src/init.php"
+        ]
+    },
     "require": {
         "php": ">=5.6.4",
         "phpmailer/phpmailer": "^6.0",
         "filp/whoops": "^2.1",
         "usmanhalalit/pixie": "2.*@dev",
-        "tedivm/stash": "^0.14.2"
+        "tedivm/stash": "^0.14.2",
+        "rakit/validation": "^1.1"
     },
     "license": "MIT",
     "authors": [{

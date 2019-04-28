@@ -16,7 +16,7 @@ $config = [
     ],
 
     /* database setting */
-    'db' => [
+    'database' => [
         'driver' => 'mysql',
         'host' => 'localhost',
         'username' => 'root',

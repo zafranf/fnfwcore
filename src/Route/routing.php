@@ -1,14 +1,23 @@
 <?php
+$isCLI = strpos(php_sapi_name(), 'cli') !== false;
+if ($isCLI) {
+    return true;
+}
 $routes = require_once APP_PATH . 'routes.php';
 
 /* set default controller */
 $file = config('default_controller');
 
 /* handle  request uri */
-if ($_SERVER['REQUEST_URI'] != '/') {
+if (isset($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI'] != '/') {
     /* separate from params */
     $uri = explode('?', $_SERVER['REQUEST_URI']);
     $file = trim($uri[0], '/');
+}
+
+/* cek root tanpa parameter */
+if (!isset($file) || empty($file)) {
+    $file = config('default_controller');
 }
 
 /* check existing file */
