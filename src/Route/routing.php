@@ -22,7 +22,6 @@ if (!isset($file) || empty($file)) {
 
 /* check existing file */
 $file = checkRouteFile($file, $routes);
-
 /**
  * [checkRouteFile description]
  * @param  [type] $file [description]
@@ -35,38 +34,10 @@ function checkRouteFile($file, $routes)
     $_SESSION['params'] = [];
 
     // checking file from full uri (w/o params)
-    if (!file_exists($config['app']['controller_folder'] . $target . '.php')) {
-        // explode uri by /
-        $files = explode("/", $file);
-
-        // count uri
-        for ($i = (count($files) - 1); $i >= 0; $i--) {
-            // reimplode the uri
-            $target = implode("/", $files);
-
-            // check file exist with new target
-            if (file_exists($config['app']['controller_folder'] . $target . '.php')) {
-                setRouteSession($target);
-                return $target;
-            } else if (file_exists($config['app']['controller_folder'] . $target . '/index.php')) {
-                $target = $target . '/index';
-                setRouteSession($target);
-                return $target;
-            } else {
-                /* check routes */
-                $check = checkRoutes($target, $routes);
-                if ($check != 404) {
-                    setRouteSession($target);
-                    return $check;
-                }
-            }
-
-            // store param to session
-            $_SESSION['params'][] = $files[$i];
-
-            // take out param from uri
-            unset($files[$i]);
-        }
+    $check = checkRoutes($target, $routes);
+    if ($check != 404) {
+        setRouteSession($target);
+        return $check;
     }
 
     /* for dynamic root */
@@ -89,6 +60,26 @@ function checkRoutes($file, $routes)
     /* check route in array routes */
     if (in_array($file, array_keys($routes))) {
         $target = $routes[$file];
+    } else {
+        foreach ($routes as $route => $fileTarget) {
+            if (strpos($route, '*') !== false) {
+                preg_match('/(\*)/', $route, $matchRoute);
+
+                $reg = str_replace(['*', '/'], ['(.*)', '\/'], $route);
+                $check = preg_match('/' . $reg . '/', $file, $match);
+                if ($check) {
+                    unset($match[0]);
+                    $file = str_replace($match, $matchRoute, $file);
+
+                    if (in_array($file, array_keys($routes))) {
+                        $target = $routes[$file];
+                        $_SESSION['params'] = array_reverse($match);
+                        return $target;
+                        // debug($target);
+                    }
+                }
+            }
+        }
     }
 
     return $target;
@@ -104,12 +95,12 @@ function setRouteSession($route)
     $_SESSION['params'] = array_reverse($_SESSION['params']);
 
     /* take out routes in params */
-    $xroute = explode("/", $route);
-    foreach ($xroute as $key => $val) {
-        if (isset($_SESSION['params'][$key]) && $_SESSION['params'][$key] == $val) {
-            unset($_SESSION['params'][$key]);
-        }
-    }
+    /* $xroute = explode("/", $route);
+foreach ($xroute as $key => $val) {
+if (isset($_SESSION['params'][$key]) && $_SESSION['params'][$key] == $val) {
+unset($_SESSION['params'][$key]);
+}
+} */
 }
 
 /**
