@@ -948,3 +948,103 @@ if (!function_exists('imageOptimation')) {
         return true;
     }
 }
+
+/**
+ * [controller description]
+ * @param  [type] $file [description]
+ * @return [type]       [description]
+ */
+if (!function_exists('controller')) {
+    function controller($file)
+    {
+        $config = config();
+
+        $params = getParameters();
+        $controller = $file;
+        $route = getRoute();
+        $target = $config['app']['controller_folder'] . $file . '.php';
+
+        /* check file */
+        if (file_exists($target)) {
+            return require $target;
+        }
+
+        return view_error(404);
+    }
+}
+
+/**
+ * [view description]
+ * @param  [type] $file [description]
+ * @param  array $data [description]
+ * @return [type]       [description]
+ */
+if (!function_exists('view')) {
+    function view()
+    {
+        $config = config();
+        $code = 200;
+        $file = '';
+        $data = [];
+
+        /* get arguments */
+        foreach (func_get_args() as $arg) {
+            if (is_int($arg)) {
+                $code = $arg;
+            } else if (is_string($arg)) {
+                $file = $arg;
+            } else if (is_array($arg)) {
+                $data = $arg;
+            }
+        }
+
+        /* set http header */
+        http_response_code($code);
+
+        /* set params */
+        $params = getParameters();
+
+        /* get file */
+        $file = $config['app']['view_folder'] . $file . '.php';
+
+        /* check file */
+        if (file_exists($file)) {
+            extract($data);
+            return require $file;
+        }
+
+        return view_error(404);
+    }
+}
+
+/**
+ * [view_error description]
+ * @param  integer $code [description]
+ * @param  string  $file [description]
+ * @return [type]        [description]
+ */
+if (!function_exists('view_error')) {
+    function view_error()
+    {
+        $config = config();
+        $code = 0;
+        $file = '';
+
+        /* get arguments */
+        foreach (func_get_args() as $arg) {
+            if (is_int($arg)) {
+                $code = $arg;
+            } else if (is_string($arg)) {
+                $file = $arg;
+            }
+        }
+
+        /* set http header */
+        http_response_code($code);
+
+        /* get file */
+        $file = !empty($file) ? $file : 'errors/' . $code;
+
+        return require $config['app']['view_folder'] . $file . '.php';
+    }
+}

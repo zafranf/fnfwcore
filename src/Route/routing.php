@@ -22,6 +22,9 @@ if (!isset($file) || empty($file)) {
 
 /* check existing file */
 $file = checkRouteFile($file, $routes);
+if (is_callable($file)) {
+    return call_user_func($file);
+}
 
 /**
  * [checkRouteFile description]
@@ -35,38 +38,13 @@ function checkRouteFile($file, $routes)
     $_SESSION['params'] = [];
 
     // checking file from full uri (w/o params)
-    if (!file_exists($config['app']['controller_folder'] . $target . '.php')) {
-        // explode uri by /
-        $files = explode("/", $file);
-
-        // count uri
-        for ($i = (count($files) - 1); $i >= 0; $i--) {
-            // reimplode the uri
-            $target = implode("/", $files);
-
-            // check file exist with new target
-            if (file_exists($config['app']['controller_folder'] . $target . '.php')) {
-                setRouteSession($target);
-                return $target;
-            } else if (file_exists($config['app']['controller_folder'] . $target . '/index.php')) {
-                $target = $target . '/index';
-                setRouteSession($target);
-                return $target;
-            } else {
-                /* check routes */
-                $check = checkRoutes($target, $routes);
-                if ($check != 404) {
-                    setRouteSession($target);
-                    return $check;
-                }
-            }
-
-            // store param to session
-            $_SESSION['params'][] = $files[$i];
-
-            // take out param from uri
-            unset($files[$i]);
-        }
+    $check = checkRoutes($target, $routes);
+    if (is_callable($check)) {
+        setRouteSession($target);
+        return $check;
+    } else if ($check != 404) {
+        setRouteSession($target);
+        return $check;
     }
 
     /* for dynamic root */
@@ -89,6 +67,30 @@ function checkRoutes($file, $routes)
     /* check route in array routes */
     if (in_array($file, array_keys($routes))) {
         $target = $routes[$file];
+        if (is_callable($routes[$file])) {
+            return $routes[$file];
+        }
+    } else {
+        foreach ($routes as $route => $fileTarget) {
+            if (strpos($route, '*') !== false) {
+                preg_match('/(\*)/', $route, $matchRoute);
+
+                $reg = str_replace(['*', '/'], ['(.*)', '\/'], $route);
+                $check = preg_match('/' . $reg . '/', $file, $match);
+                if ($check) {
+                    unset($match[0]);
+                    $file = str_replace($match, $matchRoute, $file);
+
+                    if (in_array($file, array_keys($routes))) {
+                        $target = $routes[$file];
+                        $_SESSION['params'] = array_reverse($match);
+
+                        return $target;
+                        // debug($target);
+                    }
+                }
+            }
+        }
     }
 
     return $target;
@@ -109,106 +111,6 @@ function setRouteSession($route)
         if (isset($_SESSION['params'][$key]) && $_SESSION['params'][$key] == $val) {
             unset($_SESSION['params'][$key]);
         }
-    }
-}
-
-/**
- * [controller description]
- * @param  [type] $file [description]
- * @return [type]       [description]
- */
-if (!function_exists('controller')) {
-    function controller($file)
-    {
-        $config = config();
-
-        $params = getParameters();
-        $controller = $file;
-        $route = getRoute();
-        $target = $config['app']['controller_folder'] . $file . '.php';
-
-        /* check file */
-        if (file_exists($target)) {
-            return require $target;
-        }
-
-        return view_error(404);
-    }
-}
-
-/**
- * [view description]
- * @param  [type] $file [description]
- * @param  array $data [description]
- * @return [type]       [description]
- */
-if (!function_exists('view')) {
-    function view()
-    {
-        $config = config();
-        $code = 200;
-        $file = '';
-        $data = [];
-
-        /* get arguments */
-        foreach (func_get_args() as $arg) {
-            if (is_int($arg)) {
-                $code = $arg;
-            } else if (is_string($arg)) {
-                $file = $arg;
-            } else if (is_array($arg)) {
-                $data = $arg;
-            }
-        }
-
-        /* set http header */
-        http_response_code($code);
-
-        /* set params */
-        $params = getParameters();
-
-        /* get file */
-        $file = $config['app']['view_folder'] . $file . '.php';
-
-        /* check file */
-        if (file_exists($file)) {
-            extract($data);
-            return require $file;
-        }
-
-        return view_error(404);
-    }
-}
-
-/**
- * [view_error description]
- * @param  integer $code [description]
- * @param  string  $file [description]
- * @return [type]        [description]
- */
-if (!function_exists('view_error')) {
-    function view_error()
-    {
-        $config = config();
-        $code = 0;
-        $file = '';
-
-        /* get arguments */
-        foreach (func_get_args() as $arg) {
-            if (is_int($arg)) {
-                $code = $arg;
-            } else if (is_string($arg)) {
-                $file = $arg;
-            }
-        }
-
-        /* set http header */
-        http_response_code($code);
-
-        /* get file */
-        $file = !empty($file) ? $file : 'errors/' . $code;
-
-        return require $config['app']['view_folder'] . $file . '.php';
     }
 }
 
