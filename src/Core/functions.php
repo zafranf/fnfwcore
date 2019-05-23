@@ -365,7 +365,7 @@ if (!function_exists('visitorLog')) {
         $referrer = (_server('HTTP_REFERER') != null) ? _server('HTTP_REFERER') : '';
         $referral = str_replace(url('/'), "/", $referrer);
         $is_robot = $agent->isRobot() ? 1 : 0;
-        $robot_name = $is_robot ? $agent->robot : '';
+        $robot_name = $is_robot ? $agent->robot() : '';
 
         $params = [
             'ip' => $ip,
