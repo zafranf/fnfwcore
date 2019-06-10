@@ -398,6 +398,7 @@ if (!function_exists('visitorLog')) {
         } else {
             $q->update([
                 'count' => db()->raw('count+1'),
+                'updated_at' => date("Y-m-d H:i:s"),
             ]);
         }
     }
@@ -433,7 +434,7 @@ if (!function_exists('activityLog')) {
             'post' => json_encode(_post()),
             'files' => json_encode(_files()),
             'created_at' => date('Y-m-d H:i:s'),
-            // 'updated_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
         ]);
     }
 }
