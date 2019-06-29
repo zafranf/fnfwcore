@@ -1,4 +1,9 @@
 <?php
+/* include helpers */
+if (file_exists(APP_PATH . 'helpers.php')) {
+    include APP_PATH . 'helpers.php';
+}
+
 /**
  * [exception_handler description]
  * @param  [type] $severity [description]
@@ -102,13 +107,36 @@ if (!function_exists('_session')) {
 }
 
 /**
+ * [_cookie description]
+ * @param  [type]  $str [description]
+ * @param  boolean $int [description]
+ * @return [type]       [description]
+ */
+if (!function_exists('_cookie')) {
+    function _cookie($key = null)
+    {
+        /* Check $key */
+        if (is_null($key)) {
+            return $_COOKIE;
+        }
+
+        /* Check requested string */
+        if (isset($_COOKIE[$key])) {
+            return $_COOKIE[$key];
+        }
+
+        return null;
+    }
+}
+
+/**
  * [_input description]
  * @param  [type]  $str [description]
  * @param  boolean $int [description]
  * @return [type]       [description]
  */
 if (!function_exists('_input')) {
-    function _input($key = null, $int = false)
+    function _input($key = null, $default = null)
     {
         /* Check $key */
         if (is_null($key)) {
@@ -117,17 +145,10 @@ if (!function_exists('_input')) {
 
         /* Check requested string */
         if (isset($_REQUEST[$key])) {
-            $val = $_REQUEST[$key];
-
-            /* Make it as integer if true */
-            if ($int) {
-                return (int) $val;
-            }
-
-            return $val;
+            return $_REQUEST[$key];
         }
 
-        return null;
+        return $default;
     }
 }
 
@@ -138,7 +159,7 @@ if (!function_exists('_input')) {
  * @return [type]       [description]
  */
 if (!function_exists('_get')) {
-    function _get($key = null, $int = false)
+    function _get($key = null, $default = null)
     {
         /* Check $key */
         if (is_null($key)) {
@@ -147,17 +168,10 @@ if (!function_exists('_get')) {
 
         /* Check requested string */
         if (isset($_GET[$key])) {
-            $val = $_GET[$key];
-
-            /* Make it as integer if true */
-            if ($int) {
-                return (int) $val;
-            }
-
-            return $val;
+            return $_GET[$key];
         }
 
-        return null;
+        return $default;
     }
 }
 
@@ -168,7 +182,7 @@ if (!function_exists('_get')) {
  * @return [type]       [description]
  */
 if (!function_exists('_post')) {
-    function _post($key = null, $int = false)
+    function _post($key = null, $default = null)
     {
         /* Check $key */
         if (is_null($key)) {
@@ -177,17 +191,10 @@ if (!function_exists('_post')) {
 
         /* Check requested string */
         if (isset($_POST[$key])) {
-            $val = $_POST[$key];
-
-            /* Make it as integer if true */
-            if ($int) {
-                return (int) $val;
-            }
-
-            return $val;
+            return $_POST[$key];
         }
 
-        return null;
+        return $default;
     }
 }
 
@@ -549,6 +556,77 @@ if (!function_exists('checkFlashMessages')) {
 }
 
 /**
+ * [generatePaginate description]
+ * @param  [type] $data [description]
+ * @param  string $url  [description]
+ * @return [type]       [description]
+ */
+if (!function_exists('generatePaginate')) {
+    function generatePaginate($data, $url = '/')
+    {
+        $jumPage = ceil($data['total'] / $data['perpage']);
+        if ($data['rows'] > 0) {
+            echo '<div style="text-align: center;"><a class="button button-outline button-small" ' . ($data['current_page'] == 1) ? 'disabled' : 'href="' . $data['prev_page_link'] . '"' . '>&lt;</a>';
+            $showPage = 0;
+            for ($i = 1; $i <= $jumPage; $i++) {
+                if ((($i >= $data['current_page'] - 3) && ($i <= $data['current_page'] + 3)) || ($i == 1) || ($i == $jumPage)) {
+                    if (($showPage == 1) && ($i != 2)) {
+                        echo '<a class="button button-outline button-small" disabled>.</a>';
+                    }
+
+                    if (($showPage != ($jumPage - 1)) && ($i == $jumPage)) {
+                        echo '<a class="button button-outline button-small" disabled>.</a>';
+                    }
+
+                    echo '<a class="button button-outline button-small" ' . ($i == $data['current_page']) ? 'disabled' : 'href="' . $url . '?page=' . $i . '"' . '>' . $i . '</a>';
+                    $showPage = $i;
+                }
+            }
+            echo '<a class="button button-outline button-small" ' . ($data['current_page'] == $data['last_page']) ? 'disabled' : 'href="' . $data['next_page_link'] . '"' . '>&gt;</a></div>';
+        }
+    }
+}
+
+/**
+ * [generateFlashMessages description]
+ * @return [type] [description]
+ */
+if (!function_exists('generateFlashMessages')) {
+    function generateFlashMessages()
+    {
+        $res = '';
+        if (!empty($_SESSION['flash_messages'])) {
+            $fm = $_SESSION['flash_messages'];
+
+            if ($fm['type_message'] == "failed") {
+                echo '<div class="error-messages">Ups, anda harus memperbaiki kesalahan berikut: <ul>';
+                foreach ($fm['message'] as $msg) {
+                    if ($msg != "") {
+                        echo '<li>' . $msg . '</li>';
+                    }
+                }
+                echo '</ul></div>';
+            } else {
+                echo '<div class="success-messages">' . $_SESSION['flash_messages']['message'] . '</div>';
+            }
+
+            $_SESSION['flash_messages'] = [];
+        }
+    }
+}
+
+/**
+ * [generateToken description]
+ * @return [type] [description]
+ */
+if (!function_exists('generateToken')) {
+    function generateToken($string)
+    {
+        return md5($string . config('app')['key']);
+    }
+}
+
+/**
  * Undocumented function
  *
  * @param [type] $data
@@ -562,10 +640,10 @@ if (!function_exists('response')) {
         http_response_code($statusCode);
         if ($json) {
             header('Content-Type: application/json');
-            die(json_encode($data));
+            $data = json_encode($data);
         }
 
-        echo $data;
+        die($data);
     }
 }
 
@@ -947,6 +1025,30 @@ if (!function_exists('imageOptimation')) {
         }
 
         return true;
+    }
+}
+
+/**
+ * [config description]
+ * @return [type] [description]
+ */
+if (!function_exists('config')) {
+    function config($key = null)
+    {
+        // $config = require ROOT_PATH . 'vendor/zafranf/fnfwcore/src/Config/config.php';
+        $config = require_once dirname(__DIR__) . "/Config/config.php";
+
+        /* Check $key */
+        if (is_null($key)) {
+            return $config;
+        }
+
+        /* Check requested string */
+        if (isset($config[$key])) {
+            return $config[$key];
+        }
+
+        return null;
     }
 }
 
