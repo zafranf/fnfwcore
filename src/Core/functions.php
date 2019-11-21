@@ -35,7 +35,11 @@ if (!function_exists('_log')) {
     function _log($data)
     {
         $target = STORAGE_PATH . "logs/" . date("Ymd") . ".log";
-        $log = "[" . date("Y-m-d H:i:s") . "] " . $data . "\r\n";
+        if (is_array($data)) {
+            $log = "[" . date("Y-m-d H:i:s") . "] " . debug($data) . "\r\n";
+        } else {
+            $log = "[" . date("Y-m-d H:i:s") . "] " . $data . "\r\n";
+        }
 
         file_put_contents($target, $log, FILE_APPEND);
     }
