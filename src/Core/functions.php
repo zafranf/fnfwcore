@@ -35,7 +35,11 @@ if (!function_exists('_log')) {
     function _log($data)
     {
         $target = STORAGE_PATH . "logs/" . date("Ymd") . ".log";
-        $log = "[" . date("Y-m-d H:i:s") . "] " . $data . "\r\n";
+        if (is_array($data)) {
+            $log = "[" . date("Y-m-d H:i:s") . "] " . debug($data) . "\r\n";
+        } else {
+            $log = "[" . date("Y-m-d H:i:s") . "] " . $data . "\r\n";
+        }
 
         file_put_contents($target, $log, FILE_APPEND);
     }
@@ -102,13 +106,36 @@ if (!function_exists('_session')) {
 }
 
 /**
+ * [_cookie description]
+ * @param  [type]  $str [description]
+ * @param  boolean $int [description]
+ * @return [type]       [description]
+ */
+if (!function_exists('_cookie')) {
+    function _cookie($key = null)
+    {
+        /* Check $key */
+        if (is_null($key)) {
+            return $_COOKIE;
+        }
+
+        /* Check requested string */
+        if (isset($_COOKIE[$key])) {
+            return $_COOKIE[$key];
+        }
+
+        return null;
+    }
+}
+
+/**
  * [_input description]
  * @param  [type]  $str [description]
  * @param  boolean $int [description]
  * @return [type]       [description]
  */
 if (!function_exists('_input')) {
-    function _input($key = null, $int = false)
+    function _input($key = null, $default = null)
     {
         /* Check $key */
         if (is_null($key)) {
@@ -117,17 +144,10 @@ if (!function_exists('_input')) {
 
         /* Check requested string */
         if (isset($_REQUEST[$key])) {
-            $val = $_REQUEST[$key];
-
-            /* Make it as integer if true */
-            if ($int) {
-                return (int) $val;
-            }
-
-            return $val;
+            return $_REQUEST[$key];
         }
 
-        return null;
+        return $default;
     }
 }
 
@@ -138,7 +158,7 @@ if (!function_exists('_input')) {
  * @return [type]       [description]
  */
 if (!function_exists('_get')) {
-    function _get($key = null, $int = false)
+    function _get($key = null, $default = null)
     {
         /* Check $key */
         if (is_null($key)) {
@@ -147,17 +167,10 @@ if (!function_exists('_get')) {
 
         /* Check requested string */
         if (isset($_GET[$key])) {
-            $val = $_GET[$key];
-
-            /* Make it as integer if true */
-            if ($int) {
-                return (int) $val;
-            }
-
-            return $val;
+            return $_GET[$key];
         }
 
-        return null;
+        return $default;
     }
 }
 
@@ -168,7 +181,7 @@ if (!function_exists('_get')) {
  * @return [type]       [description]
  */
 if (!function_exists('_post')) {
-    function _post($key = null, $int = false)
+    function _post($key = null, $default = null)
     {
         /* Check $key */
         if (is_null($key)) {
@@ -177,17 +190,10 @@ if (!function_exists('_post')) {
 
         /* Check requested string */
         if (isset($_POST[$key])) {
-            $val = $_POST[$key];
-
-            /* Make it as integer if true */
-            if ($int) {
-                return (int) $val;
-            }
-
-            return $val;
+            return $_POST[$key];
         }
 
-        return null;
+        return $default;
     }
 }
 
@@ -562,10 +568,10 @@ if (!function_exists('response')) {
         http_response_code($statusCode);
         if ($json) {
             header('Content-Type: application/json');
-            die(json_encode($data));
+            $data = json_encode($data);
         }
 
-        echo $data;
+        die($data);
     }
 }
 
@@ -947,6 +953,30 @@ if (!function_exists('imageOptimation')) {
         }
 
         return true;
+    }
+}
+
+/**
+ * [config description]
+ * @return [type] [description]
+ */
+if (!function_exists('config')) {
+    function config($key = null)
+    {
+        // $config = require ROOT_PATH . 'vendor/zafranf/fnfwcore/src/Config/config.php';
+        $config = require_once dirname(__DIR__) . "/Config/config.php";
+
+        /* Check $key */
+        if (is_null($key)) {
+            return $config;
+        }
+
+        /* Check requested string */
+        if (isset($config[$key])) {
+            return $config[$key];
+        }
+
+        return null;
     }
 }
 
