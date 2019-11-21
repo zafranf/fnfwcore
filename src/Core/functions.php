@@ -254,9 +254,7 @@ if (!function_exists('_files')) {
 
         /* Check requested string */
         if (isset($_FILES[$key])) {
-            $val = $_FILES[$key];
-
-            return _file($file);
+            return _file($key);
         }
 
         return null;
