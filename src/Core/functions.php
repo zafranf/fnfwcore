@@ -35,11 +35,7 @@ if (!function_exists('_log')) {
     function _log($data)
     {
         $target = STORAGE_PATH . "logs/" . date("Ymd") . ".log";
-        if (is_array($data)) {
-            $log = "[" . date("Y-m-d H:i:s") . "] " . debug($data) . "\r\n";
-        } else {
-            $log = "[" . date("Y-m-d H:i:s") . "] " . $data . "\r\n";
-        }
+        $log = "[" . date("Y-m-d H:i:s") . "] " . (is_array($data) ? print_r($data, true) : $data) . "\r\n";
 
         file_put_contents($target, $log, FILE_APPEND);
     }
@@ -961,8 +957,7 @@ if (!function_exists('imageOptimation')) {
 if (!function_exists('config')) {
     function config($key = null)
     {
-        // $config = require ROOT_PATH . 'vendor/zafranf/fnfwcore/src/Config/config.php';
-        $config = require_once dirname(__DIR__) . "/Config/config.php";
+        $config = include dirname(__DIR__) . "/Config/config.php";
 
         /* Check $key */
         if (is_null($key)) {
