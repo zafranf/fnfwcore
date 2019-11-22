@@ -961,8 +961,7 @@ if (!function_exists('imageOptimation')) {
 if (!function_exists('config')) {
     function config($key = null)
     {
-        // $config = require ROOT_PATH . 'vendor/zafranf/fnfwcore/src/Config/config.php';
-        $config = require_once dirname(__DIR__) . "/Config/config.php";
+        $config = include dirname(__DIR__) . "/Config/config.php";
 
         /* Check $key */
         if (is_null($key)) {
