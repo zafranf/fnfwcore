@@ -21,10 +21,12 @@
     },
     "require-dev": {},
     "license": "MIT",
-    "authors": [{
-        "name": "zafranf",
-        "email": "fadilah@zafran.id"
-    }],
+    "authors": [
+        {
+            "name": "Zafran Fadilah",
+            "email": "surel@zafran.id"
+        }
+    ],
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,
