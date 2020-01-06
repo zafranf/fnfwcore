@@ -48,15 +48,19 @@ if (!function_exists('generateFlashMessages')) {
             $fm = $_SESSION['flash_messages'];
 
             if ($fm['type_message'] == "failed") {
-                echo '<div class="error-messages">Ups, anda harus memperbaiki kesalahan berikut: <ul>';
-                foreach ($fm['message'] as $msg) {
-                    if ($msg != "") {
-                        echo '<li>' . $msg . '</li>';
+                if (is_array($fm['message'])) {
+                    echo '<div class="error-messages">Ups, anda harus memperbaiki kesalahan berikut: <ul>';
+                    foreach ($fm['message'] as $msg) {
+                        if ($msg != "") {
+                            echo '<li>' . $msg . '</li>';
+                        }
                     }
+                    echo '</ul></div>';
+                } else {
+                    echo '<div class="success-messages">' . $fm['message'] . '</div>';
                 }
-                echo '</ul></div>';
             } else {
-                echo '<div class="success-messages">' . $_SESSION['flash_messages']['message'] . '</div>';
+                echo '<div class="success-messages">' . $fm['message'] . '</div>';
             }
 
             $_SESSION['flash_messages'] = [];
