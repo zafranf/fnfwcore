@@ -10,6 +10,7 @@ $config = [
         'url' => 'http://localhost',
         'key' => 'fnfw',
         'lang' => 'en',
+        'timezone' => 'Asia/Jakarta',
         'debug' => false,
         'view_folder' => APP_PATH . 'views/',
         'controller_folder' => APP_PATH . 'controllers/',
