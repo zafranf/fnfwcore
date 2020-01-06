@@ -57,7 +57,7 @@ if (!function_exists('generateFlashMessages')) {
                     }
                     echo '</ul></div>';
                 } else {
-                    echo '<div class="success-messages">' . $fm['message'] . '</div>';
+                    echo '<div class="error-messages">' . $fm['message'] . '</div>';
                 }
             } else {
                 echo '<div class="success-messages">' . $fm['message'] . '</div>';
